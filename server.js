@@ -111,5 +111,6 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor de elite rodando na porta ${PORT}`);
+  console.log('>>> SISTEMA O CHEFÃO ONLINE - v2.7 - PORTA: ' + PORT);
+  console.log('>>> AGUARDANDO COMANDOS DE ELITE...');
 });
