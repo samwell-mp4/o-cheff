@@ -13,7 +13,6 @@ COPY package*.json ./
 RUN npm install --production
 COPY --from=build /app/dist ./dist
 COPY server.js ./
-COPY .env ./
 
-EXPOSE 3004
+EXPOSE 3000
 CMD ["node", "server.js"]
