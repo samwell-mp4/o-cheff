@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import dotenv from 'dotenv';
@@ -16,14 +15,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Mercado Pago integration (already done)
 const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
 
+// API Routes
 app.post('/api/create-pix', async (req, res) => {
   const { total, items, buyer, userId } = req.body;
-  
-  const [firstName, ...lastNameParts] = buyer.name.trim().split(' ');
-  const lastName = lastNameParts.join(' ') || 'Cliente';
+  const [firstName, ...lastNameParts] = (buyer.name || 'Cliente').trim().split(' ');
+  const lastName = lastNameParts.join(' ') || 'Fiel';
 
   try {
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
@@ -41,15 +39,9 @@ app.post('/api/create-pix', async (req, res) => {
           email: buyer.email,
           first_name: firstName,
           last_name: lastName,
-          identification: {
-            type: 'CPF',
-            number: '00000000000'
-          }
+          identification: { type: 'CPF', number: '00000000000' }
         },
-        metadata: {
-          user_id: userId,
-          roblox_nick: buyer.robloxNick
-        }
+        metadata: { user_id: userId, roblox_nick: buyer.robloxNick }
       })
     });
 
@@ -63,7 +55,6 @@ app.post('/api/create-pix', async (req, res) => {
       status: data.status
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -80,37 +71,43 @@ app.get('/api/check-payment/:id', async (req, res) => {
   }
 });
 
-// Serving static files
+// Static files
 app.use(express.static(join(__dirname, 'dist')));
 
-// --- DYNAMIC SEO INJECTION ---
+// --- ADVANCED DYNAMIC SEO INJECTION ---
 const indexHtml = fs.readFileSync(join(__dirname, 'dist', 'index.html'), 'utf8');
 
-app.get('/item/:id', (req, res) => {
-  const item = mm2Items.find(i => i.id === parseInt(req.params.id));
+app.get('/produto/:slug', (req, res) => {
+  const item = mm2Items.find(i => i.slug === req.params.slug);
   if (item) {
+    const title = `${item.name} | Comprar ${item.name} Original com Garantia`;
+    const description = `Compre ${item.name} original (${item.category}) com entrega rápida, garantia e segurança. Confira preços e estoque disponível no Chefão dos Cards.`;
+    const url = `https://ochefaodoscards.com.br/produto/${item.slug}`;
+    
     let modifiedHtml = indexHtml
-      .replace(/<title>.*?<\/title>/, `<title>${item.name} | O Chefão dos Cards</title>`)
-      .replace(/<meta name="title" content=".*?" \/>/, `<meta name="title" content="${item.name} | Loja O Chefão dos Cards" />`)
-      .replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="Compre ${item.name} (${item.category}) de Murder Mystery 2 com o melhor preço. Entrega imediata pelo Chefão!" />`)
-      .replace(/<meta property="og:title" content=".*?" \/>/, `<meta property="og:title" content="${item.name} | O Chefão dos Cards" />`)
-      .replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="Compre ${item.name} com entrega rápida e garantida. O melhor preço do Brasil em itens MM2!" />`)
-      .replace(/<meta property="og:image" content=".*?" \/>/, `<meta property="og:image" content="${item.image}" />`)
-      .replace(/<meta property="twitter:title" content=".*?" \/>/, `<meta property="twitter:title" content="${item.name} | O Chefão dos Cards" />`)
-      .replace(/<meta property="twitter:description" content=".*?" \/>/, `<meta property="twitter:description" content="Compre ${item.name} com entrega rápida e garantida." />`)
-      .replace(/<meta property="twitter:image" content=".*?" \/>/, `<meta property="twitter:image" content="${item.image}" />`);
+      .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+      .replace(/<meta name="title" content=".*?" \/>/g, `<meta name="title" content="${title}" />`)
+      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${description}" />`)
+      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
+      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
+      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${item.image}" />`)
+      .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${url}" />`)
+      .replace(/<meta name="twitter:title" content=".*?" \/>/g, `<meta name="twitter:title" content="${title}" />`)
+      .replace(/<meta name="twitter:description" content=".*?" \/>/g, `<meta name="twitter:description" content="${description}" />`)
+      .replace(/<meta name="twitter:image" content=".*?" \/>/g, `<meta name="twitter:image" content="${item.image}" />`)
+      .replace(/<link rel="canonical" href=".*?" \/>/g, `<link rel="canonical" href="${url}" />`);
     
     return res.send(modifiedHtml);
   }
   res.send(indexHtml);
 });
 
-// SPA handle - all other routes to index.html
+// SPA Fallback
 app.use((req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor de produção rodando na porta ${PORT}`);
+  console.log(`Servidor de elite rodando na porta ${PORT}`);
 });

@@ -140,7 +140,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home searchQuery={searchQuery} onAddToCart={handleAddToCart} />} />
-        <Route path="/item/:id" element={<ProductDetails onAddToCart={handleAddToCart} />} />
+        <Route path="/produto/:slug" element={<ProductDetails onAddToCart={handleAddToCart} />} />
         <Route 
           path="/checkout" 
           element={<Checkout cart={cart} onClearCart={() => setCart([])} onAddOrder={handleAddOrder} />} 

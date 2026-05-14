@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import mm2Items from '../data/mm2Items';
 import ItemCard from '../components/ItemCard';
-import { ChevronLeft, ShoppingCart, ShieldCheck, Zap, ImageOff, Trophy, Star, Plus, Minus, MessageSquare, User } from 'lucide-react';
+import SEO from '../components/SEO';
+import { ChevronLeft, ShoppingCart, ShieldCheck, Zap, ImageOff, Trophy, Star, Plus, Minus, MessageSquare, User, Home as HomeIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const commentsData = [
@@ -12,12 +13,11 @@ const commentsData = [
 ];
 
 const ProductDetails = ({ onAddToCart }) => {
-  const { id } = useParams();
-  const item = mm2Items.find(i => i.id === parseInt(id));
+  const { slug } = useParams();
+  const item = mm2Items.find(i => i.slug === slug);
   const [imgError, setImgError] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
-  // Recommendations: same category, excluding current item, limit 4
   const recommendations = mm2Items
     .filter(i => i.category === item?.category && i.id !== item?.id)
     .slice(0, 4);
@@ -26,29 +26,7 @@ const ProductDetails = ({ onAddToCart }) => {
     window.scrollTo(0, 0);
     setQuantity(1);
     setImgError(false);
-
-    if (item) {
-      // Dynamic SEO
-      document.title = `${item.name} | O Chefão dos Cards - Loja Oficial MM2`;
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', `Compre ${item.name} (${item.category}) de Murder Mystery 2 com o melhor preço. Entrega imediata e garantida pelo Chefão dos Cards.`);
-      }
-
-      // Update OpenGraph for better social sharing
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) ogTitle.setAttribute('content', `${item.name} | Loja O Chefão dos Cards`);
-      
-      const ogImage = document.querySelector('meta[property="og:image"]');
-      if (ogImage) ogImage.setAttribute('content', item.image);
-    }
-
-    return () => {
-      // Reset to default on unmount
-      document.title = "O Chefão dos Cards | Loja Oficial de Itens MM2";
-    };
-  }, [id, item]);
+  }, [slug]);
 
   if (!item) {
     return (
@@ -63,13 +41,20 @@ const ProductDetails = ({ onAddToCart }) => {
 
   return (
     <div className="pt-40 pb-32 relative overflow-hidden">
+      <SEO item={item} />
       <div className="cinematic-rays" />
       
       <div className="container relative z-10">
-        <Link to="/" className="inline-flex items-center gap-3 text-[#888888] hover:neon-cyan transition-all mb-12 font-bebas text-2xl tracking-widest">
-          <ChevronLeft className="w-6 h-6" />
-          VOLTAR PARA O CATÁLOGO
-        </Link>
+        {/* Breadcrumb Visual */}
+        <nav className="flex items-center gap-4 mb-8 text-xs font-bebas tracking-[0.2em] text-[#888888]">
+          <Link to="/" className="hover:text-white flex items-center gap-1">
+            <HomeIcon className="w-3 h-3" /> HOME
+          </Link>
+          <ChevronLeft className="w-3 h-3 rotate-180" />
+          <span className="hover:text-white cursor-pointer uppercase">{item.category}</span>
+          <ChevronLeft className="w-3 h-3 rotate-180" />
+          <span className="text-neon-cyan uppercase">{item.name}</span>
+        </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start mb-32">
           {/* Elite Preview */}
@@ -88,7 +73,11 @@ const ProductDetails = ({ onAddToCart }) => {
             ) : (
               <img 
                 src={item.image} 
-                alt={item.name} 
+                alt={`${item.name} original ${item.category} comprar online`}
+                fetchpriority="high"
+                decoding="async"
+                width="500"
+                height="500"
                 onError={() => setImgError(true)}
                 className="w-full max-w-[500px] object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_0_30px_rgba(0,242,255,0.4)] transition-all duration-700" 
               />
@@ -107,7 +96,7 @@ const ProductDetails = ({ onAddToCart }) => {
               </span>
               <div className="indicator-success font-bebas text-xl tracking-widest uppercase flex items-center gap-2">
                 <span className="w-2 h-2 bg-[#00FF00] rounded-full animate-ping" />
-                DISPONÍVEL
+                ESTOQUE DISPONÍVEL
               </div>
             </div>
 
@@ -119,10 +108,18 @@ const ProductDetails = ({ onAddToCart }) => {
               R$ {item.price.toFixed(2).replace('.', ',')}
             </div>
 
-            <p className="text-[#E0E0E0] text-xl mb-12 leading-relaxed font-light border-l-4 border-[#00FFFF]/30 pl-8">
-              Adquira a lendária <span className="font-bold">{item.name}</span>. 
-              Garantimos a entrega via trade oficial no Roblox em tempo recorde. 
-            </p>
+            <div className="mb-12 border-l-4 border-[#00FFFF]/30 pl-8">
+              <h2 className="text-2xl font-gamer mb-4">DESCRIÇÃO DO ITEM</h2>
+              <p className="text-[#E0E0E0] text-xl leading-relaxed font-light">
+                Adquira agora a lendária <span className="font-bold text-white">{item.name}</span> original de Murder Mystery 2. 
+                Garantimos a melhor procedência e entrega segura via trade oficial. Perfeito para colecionadores de elite.
+              </p>
+              <ul className="mt-6 space-y-2 text-[#888888] font-bebas text-lg tracking-widest">
+                <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-neon-cyan" /> ENTREGA IMEDIATA</li>
+                <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-neon-cyan" /> GARANTIA VITALÍCIA</li>
+                <li className="flex items-center gap-2"><Star className="w-4 h-4 text-neon-cyan" /> ITEM 100% ORIGINAL</li>
+              </ul>
+            </div>
 
             {/* Quantity and Cart */}
             <div className="flex flex-col sm:flex-row gap-6 mb-12">
@@ -151,42 +148,59 @@ const ProductDetails = ({ onAddToCart }) => {
                 className="btn-viral flex-1 h-16 flex items-center justify-center gap-4 text-2xl"
               >
                 <ShoppingCart className="w-8 h-8" />
-                ADICIONAR AO CARRINHO
+                COMPRAR AGORA
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center gap-3 text-[#888888] font-bebas text-lg tracking-widest uppercase">
                 <ShieldCheck className="w-5 h-5 text-[#00FFFF]" />
-                Compra 100% Protegida
+                Checkout Seguro & Oficial
               </div>
               <div className="flex items-center gap-3 text-[#888888] font-bebas text-lg tracking-widest uppercase">
                 <Zap className="w-5 h-5 text-[#BF00FF]" />
-                Entrega em 5 Minutos
+                Entrega Flash (5-10min)
               </div>
             </div>
           </motion.div>
         </div>
 
+        {/* FAQ Section */}
+        <section className="mb-32">
+          <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-[#00FFFF] pl-6">
+            DÚVIDAS <span className="neon-cyan">FREQUENTES</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="glass-card p-8 rounded-3xl">
+              <h3 className="text-xl font-bold mb-4 font-gamer text-white">O produto possui garantia?</h3>
+              <p className="text-[#888888] leading-relaxed">Sim! Todos os nossos itens têm garantia vitalícia de procedência e entrega garantida pelo Chefão.</p>
+            </div>
+            <div className="glass-card p-8 rounded-3xl">
+              <h3 className="text-xl font-bold mb-4 font-gamer text-white">Como recebo meu item?</h3>
+              <p className="text-[#888888] leading-relaxed">Após a compra, realizamos o trade oficial dentro do servidor do Roblox. É rápido e seguro.</p>
+            </div>
+          </div>
+        </section>
+
         {/* Recommendations Section */}
         {recommendations.length > 0 && (
-          <div className="mb-32">
+          <section className="mb-32">
             <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-neon-cyan pl-6">
-              QUEM VIU ESTE ITEM <span className="neon-cyan">TAMBÉM VIU</span>
+              PRODUTOS <span className="neon-cyan">RELACIONADOS</span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {recommendations.map(recItem => (
-                <ItemCard key={recItem.id} item={recItem} />
+                <ItemCard key={recItem.id} item={recItem} onAddToCart={onAddToCart} />
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Comments Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2">
             <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-neon-purple pl-6">
-              AVALIAÇÕES DOS <span className="neon-purple">COMPRADORES</span>
+              AVALIAÇÕES DE <span className="neon-purple">CLIENTES</span>
             </h2>
             <div className="space-y-8">
               {commentsData.map(comment => (
@@ -218,7 +232,7 @@ const ProductDetails = ({ onAddToCart }) => {
 
           <div className="lg:col-span-1">
             <div className="glass-card p-10 rounded-[40px] sticky top-32">
-              <h3 className="text-2xl font-black mb-6 font-gamer tracking-tighter">O CHEFÃO É <span className="neon-green">CONFIÁVEL</span>?</h3>
+              <h3 className="text-2xl font-black mb-6 font-gamer tracking-tighter">O CHEFÃO É <span className="neon-green">OFICIAL</span>?</h3>
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <Trophy className="w-6 h-6 text-gold" />
@@ -230,17 +244,27 @@ const ProductDetails = ({ onAddToCart }) => {
                 </div>
                 <div className="flex items-center gap-4">
                   <MessageSquare className="w-6 h-6 text-[#00FFFF]" />
-                  <span className="text-sm text-[#888888] uppercase tracking-widest font-bold">Suporte 24/7 no WhatsApp</span>
+                  <span className="text-sm text-[#888888] uppercase tracking-widest font-bold">Suporte 24/7 Oficial</span>
                 </div>
               </div>
               <hr className="my-8 border-white/5" />
-              <button className="w-full py-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all font-bebas text-xl tracking-widest">
-                VER TODAS AS AVALIAÇÕES
-              </button>
+              <div className="bg-neon-green/10 p-4 rounded-xl text-center">
+                <p className="text-neon-green font-bold uppercase tracking-widest text-xs">Vendedor Verificado</p>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
+      
+      {/* Noscript SEO Fallback */}
+      <noscript>
+        <div className="p-20 text-center">
+          <h1>{item.name}</h1>
+          <p>{item.description || item.name}</p>
+          <p>Categoria: {item.category} - Preço: R$ {item.price}</p>
+          <a href="/#catalog">Ver catálogo completo de Murder Mystery 2</a>
+        </div>
+      </noscript>
     </div>
   );
 };

@@ -7,19 +7,25 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
   <!-- DNS Prefetch & Preconnect -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://sdk.mercadopago.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://ormbxcjsmbtyonswchkn.supabase.co" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <!-- Critical Fonts Preload -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&display=swap" as="style" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Orbitron:wght@400;700;900&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Orbitron:wght@400;700;900&display=swap" />
+  </noscript>
 
   <!-- Primary Meta Tags -->
   <title>O Chefão dos Cards | Loja Oficial de Itens MM2 (Murder Mystery 2)</title>
   <meta name="title" content="O Chefão dos Cards | Loja Oficial de Itens MM2 (Murder Mystery 2)" />
   <meta name="description" content="A maior e melhor loja de itens Murder Mystery 2 (MM2) do Brasil. Godlys, Chromas, Ancients e Sets exclusivos com entrega imediata e o melhor preço do mercado." />
   <meta name="author" content="O Chefão dos Cards" />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://ochefaodoscards.com.br/" />
 
   <!-- Open Graph / Facebook / WhatsApp -->
@@ -27,16 +33,16 @@
   <meta property="og:url" content="https://ochefaodoscards.com.br/" />
   <meta property="og:title" content="O Chefão dos Cards | Loja Oficial de Itens MM2" />
   <meta property="og:description" content="Skins raras, Godlys e Chromas de Murder Mystery 2 com o melhor preço. Entrega rápida e garantida pelo Chefão!" />
-  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:image" content="https://ochefaodoscards.com.br/og-image.png" />
   <meta property="og:site_name" content="O Chefão dos Cards" />
   <meta property="og:locale" content="pt_BR" />
 
   <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://ochefaodoscards.com.br/" />
-  <meta property="twitter:title" content="O Chefão dos Cards | Loja Oficial de Itens MM2" />
-  <meta property="twitter:description" content="Skins raras, Godlys e Chromas de Murder Mystery 2 com o melhor preço. Entrega rápida e garantida pelo Chefão!" />
-  <meta property="twitter:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ochefaodoscards.com.br/" />
+  <meta name="twitter:title" content="O Chefão dos Cards | Loja Oficial de Itens MM2" />
+  <meta name="twitter:description" content="Skins raras, Godlys e Chromas de Murder Mystery 2 com o melhor preço. Entrega rápida e garantida pelo Chefão!" />
+  <meta name="twitter:image" content="https://ochefaodoscards.com.br/og-image.png" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/favicon.png" />
@@ -64,25 +70,15 @@
       "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
         ],
         "opens": "00:00",
         "closes": "23:59"
-      },
-      "sameAs": [
-        "https://www.instagram.com/ochefaodoscards",
-        "https://www.youtube.com/@ochefaodoscards"
-      ]
+      }
     }
   </script>
 
-  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script src="https://sdk.mercadopago.com/js/v2" async></script>
 </head>
 
 <body>

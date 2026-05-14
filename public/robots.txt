@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /chat
+
+Sitemap: https://ochefaodoscards.com.br/sitemap.xml

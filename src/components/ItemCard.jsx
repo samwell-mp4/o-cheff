@@ -14,7 +14,7 @@ const ItemCard = ({ item, onAddToCart }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ y: -10 }}
-      onClick={() => navigate(`/item/${item.id}`)}
+      onClick={() => navigate(`/produto/${item.slug}`)}
       className="glass-card rounded-2xl p-6 group cursor-pointer relative overflow-hidden"
     >
       {/* Category Badge */}
@@ -35,7 +35,7 @@ const ItemCard = ({ item, onAddToCart }) => {
         ) : (
           <img
             src={item.image}
-            alt={item.name}
+            alt={`${item.name} original ${item.category} comprar online MM2`}
             onError={() => setImgError(true)}
             className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(0,255,255,0.4)] group-hover:scale-110 transition-all duration-500"
           />

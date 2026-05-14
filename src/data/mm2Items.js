@@ -126,4 +126,23 @@ const mm2Items = [
   { id: 601, name: "Frostbird", price: 3.90, category: "Pet", image: "https://murder-mystery-2.fandom.com/wiki/Special:FilePath/Frostbird.png" },
 ];
 
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
+// Add slug to all items
+mm2Items.forEach(item => {
+  item.slug = slugify(item.name);
+});
+
+export { slugify };
 export default mm2Items;
