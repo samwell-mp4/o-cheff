@@ -46,7 +46,7 @@ const PromotionsCarousel = ({ onAddToCart }) => {
           className="promo-swiper py-12"
         >
           {promoItems.map((item) => (
-            <SwiperSlide key={item.id} className="w-[300px] md:w-[450px]">
+            <SwiperSlide key={item.id} className="w-[280px] sm:w-[350px] md:w-[450px]">
               <div className="glass-card rounded-[40px] p-8 md:p-12 relative group border-neon-purple/30">
                 <div className="absolute top-6 right-6">
                   <div className="bg-neon-purple text-white px-4 py-1 rounded-full font-bebas text-lg tracking-widest animate-pulse shadow-[0_0_15px_#BF00FF]">

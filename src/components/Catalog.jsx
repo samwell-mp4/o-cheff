@@ -81,7 +81,7 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
                 <SwiperSlide key={cat.id} className="!w-auto">
                   <button
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center gap-3 px-8 py-4 rounded-xl font-bebas text-2xl tracking-widest transition-all border whitespace-nowrap min-w-[150px] justify-center ${
+                    className={`flex items-center gap-3 px-6 py-3 md:px-8 md:py-4 rounded-xl font-bebas text-xl md:text-2xl tracking-widest transition-all border whitespace-nowrap min-w-[120px] md:min-w-[150px] justify-center ${
                       activeCategory === cat.id
                         ? 'bg-neon-cyan text-black border-neon-cyan shadow-[0_0_20px_rgba(0,255,255,0.4)]'
                         : 'bg-white/5 text-[#888888] border-white/10 hover:border-white/30 hover:text-white'

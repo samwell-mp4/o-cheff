@@ -30,9 +30,9 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
               setSearchQuery(e.target.value);
               if (window.location.pathname !== '/') navigate('/');
             }}
-            className="w-full bg-white/5 border border-white/10 rounded-lg py-2 md:py-3 px-10 md:px-12 text-white font-bebas tracking-widest focus:outline-none focus:border-[#00FFFF]/60 focus:bg-white/10 transition-all text-sm md:text-lg shadow-inner"
+            className="w-full bg-white/5 border border-white/10 rounded-lg py-2 md:py-3 px-8 md:px-12 text-white font-bebas tracking-widest focus:outline-none focus:border-[#00FFFF]/60 focus:bg-white/10 transition-all text-xs md:text-lg shadow-inner"
           />
-          <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 md:w-5 md:h-5 group-focus-within:text-[#00FFFF] transition-colors" />
+          <Search className="absolute left-2.5 md:left-4 top-1/2 -translate-y-1/2 text-gray-500 w-3.5 h-3.5 md:w-5 md:h-5 group-focus-within:text-[#00FFFF] transition-colors" />
         </div>
 
         <div className="flex items-center gap-8">
