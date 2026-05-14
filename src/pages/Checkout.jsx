@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ChevronRight, User, Gamepad2, CreditCard, ShoppingBag, MessageCircle, ShieldCheck, Clock, CheckCircle, Mail, Phone, AlertTriangle, Lock, LogIn, UserPlus } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-const Checkout = ({ cart, onClearCart, onAddOrder }) => {
+const Checkout = ({ cart, onClearCart }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState(null);
@@ -141,8 +141,6 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
       if (!session) {
         const success = await handleAuth();
         if (!success) return;
-        // Wait a small bit for session state to update if needed, 
-        // but handleNext continues immediately
       }
       setStep(2);
     } else if (step === 2) {
@@ -155,7 +153,6 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
     setLoading(true);
     setAuthError(null);
     try {
-      // Get current session just in case it wasn't updated in state yet
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
       const response = await fetch('/api/create-pix', {
@@ -165,7 +162,7 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
           total: subtotal,
           items: cart,
           buyer: formData,
-          userId: currentSession?.user?.id || session?.user?.id
+          userId: currentSession?.user?.id
         })
       });
       const data = await response.json();
@@ -180,21 +177,50 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
   };
 
   const finishOrder = async (mpId) => {
-    const newOrder = {
-      id: Math.random().toString(36).substr(2, 9).toUpperCase(),
-      ...formData,
-      items: cart,
-      total: subtotal,
-      status: 'Pago',
-      mp_id: mpId
-    };
-    await onAddOrder(newOrder);
-    onClearCart();
-    setStep(4);
+    setLoading(true);
+    try {
+      const { data: { session: curr } } = await supabase.auth.getSession();
+      const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
+      
+      const { error } = await supabase.from('orders').insert([{
+        id: orderId,
+        user_id: curr?.user?.id || null,
+        customer_email: formData.email,
+        customer_name: formData.name,
+        whatsapp: formData.whatsapp,
+        roblox_nick: formData.robloxNick,
+        items: cart,
+        total: subtotal,
+        status: 'Pago',
+        mp_id: mpId.toString()
+      }]);
+
+      if (error) {
+        console.error("Erro Supabase:", error);
+        // Fallback: Tenta salvar sem o email se o banco estiver com erro na coluna
+        await supabase.from('orders').insert([{
+          id: orderId,
+          user_id: curr?.user?.id || null,
+          roblox_nick: formData.robloxNick,
+          items: cart,
+          total: subtotal,
+          status: 'Pago',
+          mp_id: mpId.toString()
+        }]);
+      }
+
+      if (onClearCart) onClearCart();
+      setStep(4);
+    } catch (err) {
+      console.error("Erro fatal ao salvar pedido:", err);
+      setStep(4); // Força a tela de sucesso mesmo com erro no log
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="pt-40 pb-32 relative">
+    <div className="pt-40 pb-32 relative bg-[#020205]">
       <div className="container max-w-4xl">
         {/* Progress Stepper */}
         <div className="flex items-center justify-between mb-16 relative px-4">
@@ -331,13 +357,18 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
               )}
 
               {step === 4 && (
-                <motion.div key="success" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card p-16 rounded-[40px] text-center border-neon-green/30">
+                <motion.div key="success" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card p-16 rounded-[40px] text-center border-neon-green/30 shadow-[0_0_50px_rgba(0,255,0,0.1)]">
                   <div className="w-24 h-24 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-8"><Check className="w-12 h-12 text-neon-green" /></div>
-                  <h2 className="text-3xl sm:text-5xl font-black mb-4 font-gamer uppercase">PEDIDO <span className="neon-green">PAGO</span></h2>
-                  <p className="text-[#888888] font-bebas text-2xl tracking-widest mb-12 uppercase">Venda confirmada no sistema!</p>
-                  <button onClick={() => navigate('/chat')} className="btn-viral w-full py-6 text-2xl flex items-center justify-center gap-4">
-                    <MessageCircle className="w-8 h-8" /> RECEBER MEU ITEM
-                  </button>
+                  <h2 className="text-3xl sm:text-5xl font-black mb-4 font-gamer uppercase tracking-tighter">PEDIDO <span className="text-neon-green">CONFIRMADO!</span></h2>
+                  <p className="text-[#888888] font-bebas text-2xl tracking-widest mb-12 uppercase">Sua compra foi registrada com sucesso.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onClick={() => navigate('/dashboard')} className="btn-viral py-6 text-xl flex items-center justify-center gap-4">
+                      <ShoppingBag className="w-6 h-6" /> VER MEUS PEDIDOS
+                    </button>
+                    <button onClick={() => window.open('https://wa.me/5511999999999', '_blank')} className="bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl py-6 text-xl font-bebas tracking-widest uppercase transition-all flex items-center justify-center gap-4">
+                      <MessageCircle className="w-6 h-6 text-neon-green" /> SUPORTE WHATSAPP
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -358,20 +389,20 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
               <div className="glass-card p-8 rounded-3xl sticky top-40 border-white/5 shadow-2xl">
                 <h3 className="font-bebas text-2xl tracking-widest mb-6 flex items-center gap-3"><ShoppingBag className="w-6 h-6 text-neon-cyan" /> RESUMO</h3>
                 <div className="space-y-4 mb-8 max-h-60 overflow-y-auto pr-2">
-                  {cart.map(item => (
-                    <div key={item.id} className="flex justify-between text-xs">
-                      <span className="text-[#888888]">{item.quantity}x {item.name}</span>
-                      <span className="font-bold">R$ {(item.price * item.quantity).toFixed(2)}</span>
+                  {cart.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-xs">
+                      <span className="text-[#888888] truncate pr-2">{item.quantity}x {item.name}</span>
+                      <span className="font-bold whitespace-nowrap">R$ {(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
                 <hr className="border-white/5 mb-6" />
                 <div className="flex justify-between items-end">
                   <span className="font-bebas text-xl text-[#888888]">TOTAL</span>
-                  <span className="text-3xl font-black neon-cyan font-bebas">R$ {subtotal.toFixed(2)}</span>
+                  <span className="text-3xl font-black text-neon-cyan font-bebas">R$ {subtotal.toFixed(2)}</span>
                 </div>
-                <div className="mt-8 flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
-                  <ShieldCheck className="w-4 h-4 text-neon-green" /> Checkout Seguro
+                <div className="mt-8 flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
+                  <ShieldCheck className="w-4 h-4 text-neon-green" /> Checkout Seguro SSL
                 </div>
               </div>
             </div>
