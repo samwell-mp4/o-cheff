@@ -26,7 +26,29 @@ const ProductDetails = ({ onAddToCart }) => {
     window.scrollTo(0, 0);
     setQuantity(1);
     setImgError(false);
-  }, [id]);
+
+    if (item) {
+      // Dynamic SEO
+      document.title = `${item.name} | O Chefão dos Cards - Loja Oficial MM2`;
+      
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', `Compre ${item.name} (${item.category}) de Murder Mystery 2 com o melhor preço. Entrega imediata e garantida pelo Chefão dos Cards.`);
+      }
+
+      // Update OpenGraph for better social sharing
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', `${item.name} | Loja O Chefão dos Cards`);
+      
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) ogImage.setAttribute('content', item.image);
+    }
+
+    return () => {
+      // Reset to default on unmount
+      document.title = "O Chefão dos Cards | Loja Oficial de Itens MM2";
+    };
+  }, [id, item]);
 
   if (!item) {
     return (
