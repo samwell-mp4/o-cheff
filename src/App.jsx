@@ -16,6 +16,7 @@ import Privacy from './pages/Privacy';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import { supabase } from './lib/supabaseClient';
+import { Loader2 } from 'lucide-react';
 
 const LogoutHandler = ({ onLogout }) => {
   useEffect(() => { onLogout(); }, [onLogout]);
@@ -34,7 +35,7 @@ export default function App() {
   useEffect(() => {
     const syncAuth = async () => {
       const { data: { session: s } } = await supabase.auth.getSession();
-      handleAuthChange(s);
+      await handleAuthChange(s);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
@@ -80,6 +81,15 @@ export default function App() {
   };
 
   const isAdminPage = location.pathname.startsWith('/admin');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center gap-6">
+        <Loader2 className="w-12 h-12 text-neon-cyan animate-spin" />
+        <span className="font-bebas text-2xl tracking-[0.3em] text-white animate-pulse uppercase">Autenticando...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#050510]">

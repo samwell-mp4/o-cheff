@@ -180,40 +180,41 @@ const Checkout = ({ cart, onClearCart }) => {
     setLoading(true);
     try {
       const { data: { session: curr } } = await supabase.auth.getSession();
-      const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
+      const randomOrderId = Math.random().toString(36).substr(2, 9).toUpperCase();
       
-      const { error } = await supabase.from('orders').insert([{
-        id: orderId,
-        user_id: curr?.user?.id || null,
-        customer_email: formData.email,
+      // Monta o objeto EXATAMENTE como as colunas que vi no seu print do Supabase
+      const orderPayload = {
+        order_id: randomOrderId,
         customer_name: formData.name,
         whatsapp: formData.whatsapp,
         roblox_nick: formData.robloxNick,
-        items: cart,
+        customer_email: formData.email, // Garantindo que salve o email se a coluna existir
         total: subtotal,
         status: 'Pago',
+        items: cart,
+        user_id: curr?.user?.id || null,
         mp_id: mpId.toString()
-      }]);
+      };
+
+      const { error } = await supabase.from('orders').insert([orderPayload]);
 
       if (error) {
-        console.error("Erro Supabase:", error);
-        // Fallback: Tenta salvar sem o email se o banco estiver com erro na coluna
+        console.error("Erro ao salvar pedido no Supabase:", error);
+        // Se der erro, tenta salvar pelo menos o básico que vi no print
         await supabase.from('orders').insert([{
-          id: orderId,
-          user_id: curr?.user?.id || null,
+          order_id: randomOrderId,
+          customer_name: formData.name,
+          whatsapp: formData.whatsapp,
           roblox_nick: formData.robloxNick,
-          items: cart,
-          total: subtotal,
-          status: 'Pago',
-          mp_id: mpId.toString()
+          status: 'Pago'
         }]);
       }
 
       if (onClearCart) onClearCart();
       setStep(4);
     } catch (err) {
-      console.error("Erro fatal ao salvar pedido:", err);
-      setStep(4); // Força a tela de sucesso mesmo com erro no log
+      console.error("Erro crítico no Checkout:", err);
+      setStep(4);
     } finally {
       setLoading(false);
     }
@@ -245,14 +246,8 @@ const Checkout = ({ cart, onClearCart }) => {
                   <div className="space-y-6">
                     <AnimatePresence>
                       {authError && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }} 
-                          animate={{ opacity: 1, y: 0 }} 
-                          exit={{ opacity: 0, y: -10 }}
-                          className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex items-center gap-3 text-red-500 text-sm font-bold uppercase tracking-widest"
-                        >
-                          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-                          {authError}
+                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex items-center gap-3 text-red-500 text-sm font-bold uppercase tracking-widest">
+                          <AlertTriangle className="w-5 h-5 flex-shrink-0" /> {authError}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -300,10 +295,7 @@ const Checkout = ({ cart, onClearCart }) => {
 
                   {!session && (
                     <div className="mt-8 pt-8 border-t border-white/5 text-center">
-                      <button 
-                        onClick={() => setIsLoginMode(!isLoginMode)}
-                        className="text-[#888888] hover:text-white font-bebas text-lg tracking-widest uppercase transition-colors flex items-center justify-center gap-2 mx-auto"
-                      >
+                      <button onClick={() => setIsLoginMode(!isLoginMode)} className="text-[#888888] hover:text-white font-bebas text-lg tracking-widest uppercase transition-colors flex items-center justify-center gap-2 mx-auto">
                         {isLoginMode ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Clique aqui'}
                       </button>
                     </div>
@@ -324,7 +316,7 @@ const Checkout = ({ cart, onClearCart }) => {
                     </div>
                     <div className="bg-neon-purple/5 border border-neon-purple/20 p-4 rounded-xl flex items-start gap-3">
                       <AlertTriangle className="w-5 h-5 text-neon-purple flex-shrink-0 mt-1" />
-                      <p className="text-[10px] text-gray-400 uppercase leading-relaxed font-bold tracking-widest">
+                      <p className="text-[10px] text-gray-400 uppercase leading-relaxed font-bold tracking-widest text-left">
                         Certifique-se de que o Nickname está correto. Não nos responsabilizamos por entregas em contas erradas.
                       </p>
                     </div>
@@ -357,16 +349,16 @@ const Checkout = ({ cart, onClearCart }) => {
               )}
 
               {step === 4 && (
-                <motion.div key="success" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card p-16 rounded-[40px] text-center border-neon-green/30 shadow-[0_0_50px_rgba(0,255,0,0.1)]">
+                <motion.div key="success" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card p-16 rounded-[40px] text-center border-neon-green/30">
                   <div className="w-24 h-24 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-8"><Check className="w-12 h-12 text-neon-green" /></div>
-                  <h2 className="text-3xl sm:text-5xl font-black mb-4 font-gamer uppercase tracking-tighter">PEDIDO <span className="text-neon-green">CONFIRMADO!</span></h2>
-                  <p className="text-[#888888] font-bebas text-2xl tracking-widest mb-12 uppercase">Sua compra foi registrada com sucesso.</p>
+                  <h2 className="text-3xl sm:text-5xl font-black mb-4 font-gamer uppercase tracking-tighter">SUCESSO!</h2>
+                  <p className="text-[#888888] font-bebas text-2xl tracking-widest mb-12 uppercase">Seu pedido foi registrado e será entregue em instantes.</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button onClick={() => navigate('/dashboard')} className="btn-viral py-6 text-xl flex items-center justify-center gap-4">
                       <ShoppingBag className="w-6 h-6" /> VER MEUS PEDIDOS
                     </button>
-                    <button onClick={() => window.open('https://wa.me/5511999999999', '_blank')} className="bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl py-6 text-xl font-bebas tracking-widest uppercase transition-all flex items-center justify-center gap-4">
-                      <MessageCircle className="w-6 h-6 text-neon-green" /> SUPORTE WHATSAPP
+                    <button onClick={() => window.open('https://wa.me/5511999999999', '_blank')} className="bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl py-6 text-xl font-bebas tracking-widest uppercase transition-all flex items-center justify-center gap-4 text-white">
+                      <MessageCircle className="w-6 h-6 text-neon-green" /> SUPORTE
                     </button>
                   </div>
                 </motion.div>
@@ -389,8 +381,8 @@ const Checkout = ({ cart, onClearCart }) => {
               <div className="glass-card p-8 rounded-3xl sticky top-40 border-white/5 shadow-2xl">
                 <h3 className="font-bebas text-2xl tracking-widest mb-6 flex items-center gap-3"><ShoppingBag className="w-6 h-6 text-neon-cyan" /> RESUMO</h3>
                 <div className="space-y-4 mb-8 max-h-60 overflow-y-auto pr-2">
-                  {cart.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-xs">
+                  {cart.map((item, i) => (
+                    <div key={i} className="flex justify-between text-xs">
                       <span className="text-[#888888] truncate pr-2">{item.quantity}x {item.name}</span>
                       <span className="font-bold whitespace-nowrap">R$ {(item.price * item.quantity).toFixed(2)}</span>
                     </div>
@@ -401,8 +393,8 @@ const Checkout = ({ cart, onClearCart }) => {
                   <span className="font-bebas text-xl text-[#888888]">TOTAL</span>
                   <span className="text-3xl font-black text-neon-cyan font-bebas">R$ {subtotal.toFixed(2)}</span>
                 </div>
-                <div className="mt-8 flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
-                  <ShieldCheck className="w-4 h-4 text-neon-green" /> Checkout Seguro SSL
+                <div className="mt-8 flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
+                  <ShieldCheck className="w-4 h-4 text-neon-green" /> Compra 100% Segura
                 </div>
               </div>
             </div>

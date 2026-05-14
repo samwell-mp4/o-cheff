@@ -22,7 +22,7 @@ const UserDashboard = ({ onLogout }) => {
       }
       setUser(session.user);
 
-      // Busca pedidos por Email OU UserID para garantir que apareça
+      // Busca pedidos do usuário logado
       const { data, error } = await supabase
         .from('orders')
         .select('*')
@@ -122,9 +122,10 @@ const UserDashboard = ({ onLogout }) => {
                       <div className="flex flex-col md:flex-row justify-between gap-6">
                         <div className="space-y-2">
                           <div className="flex items-center gap-3">
-                            <span className="font-bebas text-xl tracking-widest text-white">#{order.id.slice(0, 8)}</span>
+                            {/* Usa order_id para exibição, senão o ID do banco */}
+                            <span className="font-bebas text-xl tracking-widest text-white">#{order.order_id || order.id.slice(0, 8)}</span>
                             <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${getStatusColor(order.status)}`}>
-                              {getStatusIcon(order.status)} {order.status}
+                              {getStatusIcon(order.status)} {order.status || 'Pago'}
                             </div>
                           </div>
                           <p className="text-gray-500 text-sm">{new Date(order.created_at).toLocaleDateString('pt-BR')}</p>
@@ -132,7 +133,7 @@ const UserDashboard = ({ onLogout }) => {
                         <div className="flex items-center justify-between md:justify-end gap-8 text-right">
                           <div>
                             <p className="text-xs text-gray-500 uppercase font-bebas tracking-widest">Total</p>
-                            <p className="text-2xl font-black text-white text-nowrap">R$ {parseFloat(order.total).toFixed(2)}</p>
+                            <p className="text-2xl font-black text-white text-nowrap">R$ {parseFloat(order.total || 0).toFixed(2)}</p>
                           </div>
                           <ChevronRight className="w-6 h-6 text-gray-600 group-hover:text-neon-cyan" />
                         </div>
