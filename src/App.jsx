@@ -106,7 +106,7 @@ export default function App() {
         <Route path="/shop" element={<Shop onAddToCart={onAddToCart} />} />
         <Route path="/produto/:slug" element={<ProductDetails onAddToCart={onAddToCart} />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/checkout" element={<Checkout cart={cart} session={session} />} />
+        <Route path="/checkout" element={<Checkout cart={cart} session={session} onClearCart={() => setCart([])} />} />
         <Route path="/orders" element={session ? <Orders /> : <Navigate to="/login" />} />
         <Route path="/dashboard" element={session ? <UserDashboard onLogout={handleLogout} /> : <Navigate to="/login" />} />
         <Route path="/admin/*" element={

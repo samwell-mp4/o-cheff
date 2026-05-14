@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-const AdminDashboard = ({ orders = [], onLogout }) => {
+const AdminDashboard = ({ onLogout }) => {
+  const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [allMessages, setAllMessages] = useState([]);
   const [products, setProducts] = useState([]);
@@ -44,6 +45,7 @@ const AdminDashboard = ({ orders = [], onLogout }) => {
     fetchProducts();
     fetchEvents();
     fetchBanners();
+    fetchOrders();
     
     const msgChannel = supabase
       .channel('admin-chats')
@@ -76,11 +78,19 @@ const AdminDashboard = ({ orders = [], onLogout }) => {
       })
       .subscribe();
 
+    const orderChannel = supabase
+      .channel('admin-orders')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, (payload) => {
+        setOrders(prev => [payload.new, ...prev]);
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(msgChannel);
       supabase.removeChannel(prodChannel);
       supabase.removeChannel(eventChannel);
       supabase.removeChannel(bannerChannel);
+      supabase.removeChannel(orderChannel);
     };
   }, []);
 
@@ -113,6 +123,14 @@ const AdminDashboard = ({ orders = [], onLogout }) => {
       .order('created_at', { ascending: false })
       .limit(100);
     if (!error) setEvents(data);
+  };
+
+  const fetchOrders = async () => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error) setOrders(data || []);
   };
 
   const fetchBanners = async () => {
