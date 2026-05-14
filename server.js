@@ -11,6 +11,8 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+console.log('--- INICIANDO SERVIDOR ELITE v2.6 [BUILD: ' + new Date().toISOString() + '] ---');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
