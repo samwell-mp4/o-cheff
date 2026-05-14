@@ -1,13 +1,4 @@
 const mm2Items = [
-  {
-    id: 999,
-    name: "🧪 TESTE REAL — CHEFÃO",
-    price: 0.10,
-    rarity: "Unique",
-    category: "Testes",
-    image: "https://static.wikia.nocookie.net/murder-mystery-2/images/d/df/Bioblade.png",
-    description: "Item de teste para validação de pagamento real via Mercado Pago. Valor simbólico."
-  },
   // Godlys (R$ 3,90) - Standard
   { id: 1, name: "Eggblade", price: 3.90, category: "Godly", image: "https://murder-mystery-2.fandom.com/wiki/Special:FilePath/Eggblade.png" },
   { id: 2, name: "Bioblade", price: 3.90, category: "Godly", image: "https://murder-mystery-2.fandom.com/wiki/Special:FilePath/Bioblade.png" },
