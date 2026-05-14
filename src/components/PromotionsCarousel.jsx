@@ -47,7 +47,10 @@ const PromotionsCarousel = ({ onAddToCart }) => {
         >
           {promoItems.map((item) => (
             <SwiperSlide key={item.id} className="w-[280px] sm:w-[350px] md:w-[450px]">
-              <div className="glass-card rounded-[40px] p-8 md:p-12 relative group border-neon-purple/30">
+              <div 
+                onClick={() => navigate(`/produto/${item.slug}`)}
+                className="glass-card rounded-[40px] p-8 md:p-12 relative group border-neon-purple/30 cursor-pointer"
+              >
                 <div className="absolute top-6 right-6">
                   <div className="bg-neon-purple text-white px-4 py-1 rounded-full font-bebas text-lg tracking-widest animate-pulse shadow-[0_0_15px_#BF00FF]">
                     HOT DEAL
@@ -63,14 +66,14 @@ const PromotionsCarousel = ({ onAddToCart }) => {
                 </div>
 
                 <div className="text-center">
-                  <h3 className="text-3xl md:text-4xl font-black mb-2 font-gamer tracking-tighter">{item.name}</h3>
+                  <h3 className="text-2xl md:text-4xl font-black mb-2 font-gamer tracking-tighter truncate px-4">{item.name}</h3>
                   <div className="flex items-center justify-center gap-2 mb-6">
                     <Star className="w-4 h-4 text-gold fill-current" />
                     <span className="text-[#888888] font-bebas tracking-widest text-lg uppercase">{item.category}</span>
                   </div>
                   
                   <div className="flex items-center justify-between gap-4">
-                    <div className="text-4xl font-black neon-gold font-bebas">R$ {item.price.toFixed(2)}</div>
+                    <div className="text-xl md:text-2xl font-black neon-gold font-bebas whitespace-nowrap">R$ {item.price.toFixed(2).replace('.', ',')}</div>
                     <button 
                       onClick={() => onAddToCart(item)}
                       className="btn-viral px-6 h-12 flex items-center gap-2 text-lg"

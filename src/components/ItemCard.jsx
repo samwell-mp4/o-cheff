@@ -15,22 +15,22 @@ const ItemCard = ({ item, onAddToCart }) => {
       exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ y: -10 }}
       onClick={() => navigate(`/produto/${item.slug}`)}
-      className="glass-card rounded-2xl p-6 group cursor-pointer relative overflow-hidden"
+      className="glass-card rounded-2xl p-4 sm:p-6 group cursor-pointer relative overflow-hidden"
     >
       {/* Category Badge */}
-      <div className="absolute top-4 left-4 z-10">
-        <span className="bg-black/60 backdrop-blur-md border border-[#00FFFF]/30 px-3 py-1 rounded-sm text-[#00FFFF] font-bebas tracking-widest text-xs">
+      <div className="absolute top-3 left-3 z-10">
+        <span className="bg-black/60 backdrop-blur-md border border-[#00FFFF]/30 px-2 py-0.5 rounded-sm text-[#00FFFF] font-bebas tracking-widest text-[10px] sm:text-xs">
           {item.category}
         </span>
       </div>
       
       {/* Image Preview */}
-      <div className="w-full h-48 flex items-center justify-center mb-6 relative">
+      <div className="w-full h-32 sm:h-48 flex items-center justify-center mb-4 sm:mb-6 relative">
         <div className="absolute inset-0 bg-radial-gradient(circle, rgba(0,255,255,0.05), transparent) opacity-0 group-hover:opacity-100 transition-opacity" />
         {imgError ? (
-          <div className="text-gray-700 flex flex-col items-center gap-2">
-            <ImageOff className="w-12 h-12" />
-            <span className="font-bebas text-sm">NO PREVIEW</span>
+          <div className="text-gray-700 flex flex-col items-center gap-1 sm:gap-2">
+            <ImageOff className="w-8 h-8 sm:w-12 sm:h-12" />
+            <span className="font-bebas text-[10px] sm:text-sm">OFFLINE</span>
           </div>
         ) : (
           <img
@@ -43,12 +43,12 @@ const ItemCard = ({ item, onAddToCart }) => {
       </div>
 
       {/* Item Info */}
-      <h3 className="text-2xl font-bold mb-4 font-gamer tracking-tighter group-hover:neon-cyan transition-all">
+      <h3 className="text-sm sm:text-lg font-bold mb-3 sm:mb-4 font-gamer tracking-tighter group-hover:neon-cyan transition-all line-clamp-2 h-10 sm:h-14 overflow-hidden leading-tight">
         {item.name}
       </h3>
       
-      <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
-        <div className="text-3xl font-black neon-gold font-bebas tracking-tighter">
+      <div className="flex items-center justify-between mt-auto pt-4 sm:pt-6 border-t border-white/5">
+        <div className="text-xl sm:text-3xl font-black neon-gold font-bebas tracking-tighter">
           R$ {item.price.toFixed(2).replace('.', ',')}
         </div>
         <div className="flex gap-2">
@@ -57,11 +57,11 @@ const ItemCard = ({ item, onAddToCart }) => {
               e.stopPropagation();
               onAddToCart(item);
             }}
-            className="bg-[#00FFFF] text-black p-2 rounded-sm opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 shadow-[0_0_15px_#00FFFF] hover:scale-110"
+            className="bg-[#00FFFF] text-black p-2 rounded-sm sm:opacity-0 group-hover:opacity-100 transition-all transform sm:translate-y-4 group-hover:translate-y-0 shadow-[0_0_15px_#00FFFF] hover:scale-110"
           >
             <ShoppingCart className="w-5 h-5" />
           </button>
-          <div className="bg-white/10 text-white p-2 rounded-sm opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+          <div className="bg-white/10 text-white p-2 rounded-sm sm:opacity-0 group-hover:opacity-100 transition-all transform sm:translate-y-4 group-hover:translate-y-0">
             <ChevronRight className="w-5 h-5" />
           </div>
         </div>

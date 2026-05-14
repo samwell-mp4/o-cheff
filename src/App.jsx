@@ -3,9 +3,11 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabaseClient';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import Shop from './pages/Shop';
 import ProductDetails from './pages/ProductDetails';
 import CartDrawer from './components/CartDrawer';
 import Checkout from './pages/Checkout';
+import FloatingCart from './components/FloatingCart';
 import AdminDashboard from './pages/AdminDashboard';
 import ChatWindow from './components/ChatWindow';
 import Login from './pages/Login';
@@ -80,7 +82,7 @@ function App() {
       }
       return [...prev, { ...item, quantity }];
     });
-    setIsCartOpen(true);
+    // setIsCartOpen(true); // Removed to allow continuous shopping
   };
 
   const handleRemoveFromCart = (id) => {
@@ -144,6 +146,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home searchQuery={searchQuery} onAddToCart={handleAddToCart} />} />
+        <Route path="/shop" element={<Shop searchQuery={searchQuery} onAddToCart={handleAddToCart} />} />
         <Route path="/produto/:slug" element={<ProductDetails onAddToCart={handleAddToCart} />} />
         <Route 
           path="/checkout" 
@@ -159,6 +162,7 @@ function App() {
       </Routes>
 
       <Footer />
+      <FloatingCart count={cartCount} onOpenCart={() => setIsCartOpen(true)} />
     </div>
   );
 }

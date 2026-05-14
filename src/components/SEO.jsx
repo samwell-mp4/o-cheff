@@ -89,6 +89,52 @@ const SEO = ({ item, type = 'product' }) => {
     ]
   };
 
+  const siteNavigationSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "SiteNavigationElement",
+        "position": 1,
+        "name": "Shop MM2 & Sailor",
+        "url": `${baseUrl}/shop`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 2,
+        "name": "Murder Mystery 2 Items",
+        "url": `${baseUrl}/shop?category=Godly`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 3,
+        "name": "Sailor Piece Items",
+        "url": `${baseUrl}/shop?category=Sailor%20Piece`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 4,
+        "name": "Meus Pedidos",
+        "url": `${baseUrl}/orders`
+      }
+    ]
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": baseUrl,
+    "name": "O Chefão dos Cards",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${baseUrl}/shop?q={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <Helmet>
       {/* Head SEO Completo */}
@@ -99,7 +145,7 @@ const SEO = ({ item, type = 'product' }) => {
       <link rel="canonical" href={url} />
 
       {/* Open Graph / Facebook */}
-      <meta property="og:type" content="product" />
+      <meta property="og:type" content={type === 'product' ? 'product' : 'website'} />
       <meta property="og:url" content={url} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
@@ -107,17 +153,12 @@ const SEO = ({ item, type = 'product' }) => {
       <meta property="og:site_name" content="O Chefão dos Cards" />
       <meta property="og:locale" content="pt_BR" />
 
-      {/* Twitter */}
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={url} />
-      <meta property="twitter:title" content={title} />
-      <meta property="twitter:description" content={description} />
-      <meta property="twitter:image" content={image} />
-
       {/* Schema.org Injections */}
-      <script type="application/ld+json">{JSON.stringify(productSchema)}</script>
-      <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+      {type === 'product' && <script type="application/ld+json">{JSON.stringify(productSchema)}</script>}
+      {type === 'product' && <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>}
       <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      <script type="application/ld+json">{JSON.stringify(siteNavigationSchema)}</script>
+      <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
     </Helmet>
   );
 };

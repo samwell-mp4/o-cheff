@@ -25,6 +25,17 @@ const Footer = () => {
             </div>
           </div>
 
+          {/* Categories / Navigation */}
+          <div>
+            <h4 className="font-bebas text-2xl tracking-widest mb-8 text-white uppercase italic">Categorias</h4>
+            <ul className="space-y-4 text-[#888888] font-bebas text-lg tracking-widest uppercase">
+              <li><Link to="/shop" className="hover:text-neon-cyan transition-colors">Ver Todo o Inventário</Link></li>
+              <li><Link to="/shop?category=Godly" className="hover:text-neon-cyan transition-colors">Murder Mystery 2 (MM2)</Link></li>
+              <li><Link to="/shop?category=Sailor%20Piece" className="hover:text-neon-cyan transition-colors">Sailor Piece</Link></li>
+              <li><Link to="/orders" className="hover:text-neon-cyan transition-colors">Meus Pedidos</Link></li>
+            </ul>
+          </div>
+
           {/* Institutional Links */}
           <div>
             <h4 className="font-bebas text-2xl tracking-widest mb-8 text-white uppercase italic">Institucional</h4>
@@ -32,7 +43,6 @@ const Footer = () => {
               <li><Link to="/termos" className="hover:text-neon-cyan transition-colors">Termos de Uso</Link></li>
               <li><Link to="/privacidade" className="hover:text-neon-cyan transition-colors">Privacidade</Link></li>
               <li><Link to="/reembolso" className="hover:text-neon-cyan transition-colors">Reembolso & Devolução</Link></li>
-              <li><Link to="/#catalog" className="hover:text-neon-cyan transition-colors">Sobre o Inventário</Link></li>
             </ul>
           </div>
 

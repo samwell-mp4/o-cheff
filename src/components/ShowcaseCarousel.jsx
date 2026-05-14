@@ -3,12 +3,14 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import mm2Items from '../data/mm2Items';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 
 const ShowcaseCarousel = () => {
+  const navigate = useNavigate();
   // Get unique Godlies or sets
   const items = mm2Items.filter(item => item.category === 'Set' || item.category === 'Godly').slice(10, 20);
 
@@ -38,15 +40,15 @@ const ShowcaseCarousel = () => {
 
         <Swiper
           modules={[Navigation, Autoplay]}
-          spaceBetween={30}
-          slidesPerView={1}
+          spaceBetween={16}
+          slidesPerView={2}
           autoplay={{ delay: 4000 }}
           navigation={{
             prevEl: '.showcase-prev',
             nextEl: '.showcase-next',
           }}
           breakpoints={{
-            640: { slidesPerView: 2 },
+            640: { slidesPerView: 2, spaceBetween: 30 },
             1024: { slidesPerView: 3 },
             1280: { slidesPerView: 4 }
           }}
@@ -54,7 +56,10 @@ const ShowcaseCarousel = () => {
         >
           {items.map((item) => (
             <SwiperSlide key={item.id}>
-              <div className="group relative glass-card p-6 rounded-[32px] border-white/10 hover:border-neon-purple/30 transition-all duration-500 h-[420px] flex flex-col items-center justify-center">
+              <div 
+                onClick={() => navigate(`/produto/${item.slug}`)}
+                className="group relative glass-card p-6 rounded-[32px] border-white/10 hover:border-neon-purple/30 transition-all duration-500 h-[420px] flex flex-col items-center justify-center cursor-pointer"
+              >
                 <div className="absolute inset-0 bg-gradient-to-t from-neon-purple/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[32px]" />
                 
                 <div className="w-full h-48 flex items-center justify-center mb-6 relative z-10">
@@ -68,7 +73,7 @@ const ShowcaseCarousel = () => {
                 <div className="text-center relative z-10">
                   <div className="text-xs font-bebas tracking-[0.3em] text-[#888888] mb-2 uppercase">{item.category}</div>
                   <h3 className="text-2xl font-black mb-4 font-gamer tracking-tighter truncate w-full px-4">{item.name}</h3>
-                  <div className="text-3xl font-black neon-gold font-bebas">R$ {item.price.toFixed(2)}</div>
+                  <div className="text-xl md:text-2xl font-black neon-gold font-bebas whitespace-nowrap">R$ {item.price.toFixed(2).replace('.', ',')}</div>
                 </div>
 
                 <div className="absolute bottom-6 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">

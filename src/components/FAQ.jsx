@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown, MessageCircle, ShieldCheck } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+
+// Styles
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 const faqs = [
   {
@@ -119,37 +125,47 @@ const FAQ = ({ variant = 'full' }) => {
           </p>
         </div>
 
-        {/* Horizontal Card Slider */}
-        <div className="relative">
-          <motion.div 
-            className="flex gap-6 overflow-x-auto pb-12 px-4 no-scrollbar cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ right: 0, left: -2000 }} // Dynamic constraint would be better but this is a quick fix
+        {/* Horizontal Card Slider using Swiper for Stability */}
+        <div className="relative faq-swiper-container px-4 sm:px-0">
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            spaceBetween={24}
+            slidesPerView={1}
+            grabCursor={true}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            breakpoints={{
+              640: { slidesPerView: 1.5 },
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 2.5 },
+              1280: { slidesPerView: 3 }
+            }}
+            className="faq-swiper pb-16"
           >
             {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                className="flex-shrink-0 w-[300px] sm:w-[400px] glass-card p-8 rounded-[2rem] border-white/5 hover:border-[#00FFFF]/30 transition-colors flex flex-col gap-6"
-                whileHover={{ y: -10 }}
-              >
-                <div className="w-12 h-12 bg-[#00FFFF]/10 rounded-xl flex items-center justify-center shrink-0">
-                  <HelpCircle className="w-6 h-6 text-[#00FFFF]" />
-                </div>
-                <div>
-                  <h3 className="font-bebas text-2xl tracking-widest text-white mb-4 leading-tight">
-                    {faq.question}
-                  </h3>
-                  <p className="text-gray-400 font-light leading-relaxed text-sm sm:text-base">
-                    {faq.answer}
-                  </p>
-                </div>
-              </motion.div>
+              <SwiperSlide key={index}>
+                <motion.div
+                  className="h-full glass-card p-8 rounded-[2rem] border-white/5 hover:border-[#00FFFF]/30 transition-colors flex flex-col gap-6"
+                  whileHover={{ y: -10 }}
+                >
+                  <div className="w-12 h-12 bg-[#00FFFF]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <HelpCircle className="w-6 h-6 text-[#00FFFF]" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bebas text-2xl tracking-widest text-white mb-4 leading-tight">
+                      {faq.question}
+                    </h3>
+                    <p className="text-gray-400 font-light leading-relaxed text-sm sm:text-base">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </motion.div>
+              </SwiperSlide>
             ))}
-          </motion.div>
+          </Swiper>
           
-          {/* Fade Effects for Slider */}
-          <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-black to-transparent pointer-events-none" />
-          <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-black to-transparent pointer-events-none" />
+          {/* Decorative Gradient Fades */}
+          <div className="hidden lg:block absolute top-0 left-[-2px] h-full w-20 bg-gradient-to-r from-[#050505] to-transparent z-10 pointer-events-none" />
+          <div className="hidden lg:block absolute top-0 right-[-2px] h-full w-20 bg-gradient-to-l from-[#050505] to-transparent z-10 pointer-events-none" />
         </div>
 
         {/* Support CTA - Enhanced */}

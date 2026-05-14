@@ -18,6 +18,7 @@ const ProductDetails = ({ onAddToCart }) => {
   const item = mm2Items.find(i => i.slug === slug);
   const [imgError, setImgError] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const recommendations = mm2Items
     .filter(i => i.category === item?.category && i.id !== item?.id)
@@ -27,6 +28,7 @@ const ProductDetails = ({ onAddToCart }) => {
     window.scrollTo(0, 0);
     setQuantity(1);
     setImgError(false);
+    setShowFullDescription(false);
   }, [slug]);
 
   if (!item) {
@@ -48,13 +50,15 @@ const ProductDetails = ({ onAddToCart }) => {
       <div className="container relative z-10">
         {/* Breadcrumb Visual */}
         <nav className="flex items-center gap-4 mb-8 text-xs font-bebas tracking-[0.2em] text-[#888888]">
-          <Link to="/" className="hover:text-white flex items-center gap-1">
-            <HomeIcon className="w-3 h-3" /> HOME
+          <Link to="/shop" className="hover:text-white flex items-center gap-1">
+            <HomeIcon className="w-3 h-3" /> VOLTAR AO SHOP
           </Link>
           <ChevronLeft className="w-3 h-3 rotate-180" />
-          <span className="hover:text-white cursor-pointer uppercase">{item.category}</span>
+          <Link to={`/shop?category=${item.category === 'Sailor Piece' ? 'Sailor Piece' : 'Godly'}`} className="hover:text-white cursor-pointer uppercase">
+            {item.category}
+          </Link>
           <ChevronLeft className="w-3 h-3 rotate-180" />
-          <span className="text-neon-cyan uppercase">{item.name}</span>
+          <span className="text-neon-cyan uppercase truncate max-w-[150px] sm:max-w-none">{item.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start mb-32">
@@ -101,7 +105,7 @@ const ProductDetails = ({ onAddToCart }) => {
               </div>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 tracking-tighter leading-none">
+            <h1 className={`${item.name.length > 40 ? 'text-xl sm:text-2xl md:text-4xl' : 'text-2xl sm:text-3xl md:text-5xl'} font-black mb-6 tracking-tight leading-tight uppercase font-bebas`}>
               {item.name}
             </h1>
             
@@ -110,11 +114,21 @@ const ProductDetails = ({ onAddToCart }) => {
             </div>
 
             <div className="mb-12 border-l-4 border-[#00FFFF]/30 pl-8">
-              <h2 className="text-2xl font-gamer mb-4">DESCRIÇÃO DO ITEM</h2>
-              <p className="text-[#E0E0E0] text-xl leading-relaxed font-light">
-                Adquira agora a lendária <span className="font-bold text-white">{item.name}</span> original de Murder Mystery 2. 
-                Garantimos a melhor procedência e entrega segura via trade oficial. Perfeito para colecionadores de elite.
-              </p>
+              <h2 className="text-2xl font-bebas tracking-widest mb-4">DESCRIÇÃO DO ITEM</h2>
+              <div className="text-[#E0E0E0] text-xl leading-relaxed font-light">
+                <p className={!showFullDescription && item.name.length > 50 ? "line-clamp-3" : ""}>
+                  Adquira agora a lendária <span className="font-bold text-white">{item.name}</span> original de Murder Mystery 2. 
+                  Garantimos a melhor procedência e entrega segura via trade oficial. Perfeito para colecionadores de elite.
+                </p>
+                {!showFullDescription && item.name.length > 50 && (
+                  <button 
+                    onClick={() => setShowFullDescription(true)}
+                    className="text-neon-cyan font-bebas tracking-widest mt-2 hover:underline"
+                  >
+                    VER TUDO...
+                  </button>
+                )}
+              </div>
               <ul className="mt-6 space-y-2 text-[#888888] font-bebas text-lg tracking-widest">
                 <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-neon-cyan" /> ENTREGA IMEDIATA</li>
                 <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-neon-cyan" /> GARANTIA VITALÍCIA</li>
