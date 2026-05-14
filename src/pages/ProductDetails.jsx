@@ -166,9 +166,6 @@ const ProductDetails = ({ onAddToCart }) => {
           </motion.div>
         </div>
 
-        {/* FAQ Section */}
-        <FAQ variant="discreet" />
-
         {/* Recommendations Section */}
         {recommendations.length > 0 && (
           <section className="mb-32">
@@ -184,7 +181,7 @@ const ProductDetails = ({ onAddToCart }) => {
         )}
 
         {/* Comments Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-32">
           <div className="lg:col-span-2">
             <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-neon-purple pl-6">
               AVALIAÇÕES DE <span className="neon-purple">CLIENTES</span>
@@ -241,6 +238,9 @@ const ProductDetails = ({ onAddToCart }) => {
             </div>
           </div>
         </section>
+
+        {/* Global FAQ - Discreet Variant */}
+        <FAQ variant="discreet" />
       </div>
       
       {/* Noscript SEO Fallback */}

@@ -81,7 +81,6 @@ const FAQItem = ({ faq, isOpen, toggle }) => (
 );
 
 const FAQ = ({ variant = 'full' }) => {
-  const [openIndex, setOpenIndex] = useState(null);
   const isDiscreet = variant === 'discreet';
 
   return (
@@ -103,7 +102,7 @@ const FAQ = ({ variant = 'full' }) => {
             className="inline-block mb-4"
           >
             <span className="bg-[#00FFFF]/10 border border-[#00FFFF]/20 px-4 py-1 rounded-full text-[#00FFFF] text-[10px] font-black tracking-[0.3em] uppercase">
-              Centro de Ajuda
+              Help Center
             </span>
           </motion.div>
           
@@ -115,22 +114,42 @@ const FAQ = ({ variant = 'full' }) => {
             {isDiscreet ? 'Dúvidas' : 'Perguntas'} <span className="neon-cyan">{isDiscreet ? 'Comuns' : 'Frequentes'}</span>
           </motion.h2>
           
-          {!isDiscreet && (
-            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
-              Tudo o que você precisa saber sobre o <span className="text-white font-bold italic">O Chefão</span> e como garantimos a melhor experiência de compra do Brasil.
-            </p>
-          )}
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
+            Arraste para o lado para tirar suas dúvidas.
+          </p>
         </div>
 
-        <div className={`${isDiscreet ? 'max-w-3xl' : 'max-w-4xl'} mx-auto space-y-3`}>
-          {faqs.map((faq, index) => (
-            <FAQItem
-              key={index}
-              faq={faq}
-              isOpen={openIndex === index}
-              toggle={() => setOpenIndex(openIndex === index ? null : index)}
-            />
-          ))}
+        {/* Horizontal Card Slider */}
+        <div className="relative">
+          <motion.div 
+            className="flex gap-6 overflow-x-auto pb-12 px-4 no-scrollbar cursor-grab active:cursor-grabbing"
+            drag="x"
+            dragConstraints={{ right: 0, left: -2000 }} // Dynamic constraint would be better but this is a quick fix
+          >
+            {faqs.map((faq, index) => (
+              <motion.div
+                key={index}
+                className="flex-shrink-0 w-[300px] sm:w-[400px] glass-card p-8 rounded-[2rem] border-white/5 hover:border-[#00FFFF]/30 transition-colors flex flex-col gap-6"
+                whileHover={{ y: -10 }}
+              >
+                <div className="w-12 h-12 bg-[#00FFFF]/10 rounded-xl flex items-center justify-center shrink-0">
+                  <HelpCircle className="w-6 h-6 text-[#00FFFF]" />
+                </div>
+                <div>
+                  <h3 className="font-bebas text-2xl tracking-widest text-white mb-4 leading-tight">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-400 font-light leading-relaxed text-sm sm:text-base">
+                    {faq.answer}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+          
+          {/* Fade Effects for Slider */}
+          <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-black to-transparent pointer-events-none" />
+          <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-black to-transparent pointer-events-none" />
         </div>
 
         {/* Support CTA - Enhanced */}
@@ -138,7 +157,7 @@ const FAQ = ({ variant = 'full' }) => {
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="mt-24 text-center"
+            className="mt-12 text-center"
           >
             <div className="inline-flex flex-col sm:flex-row items-center gap-6 sm:gap-12 glass-card p-8 sm:p-10 rounded-[2rem] border-white/5 shadow-2xl">
               <div className="flex items-center gap-4 text-left">
