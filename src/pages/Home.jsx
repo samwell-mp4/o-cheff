@@ -3,6 +3,7 @@ import Hero from '../components/Hero';
 import Catalog from '../components/Catalog';
 import PromotionsCarousel from '../components/PromotionsCarousel';
 import ShowcaseCarousel from '../components/ShowcaseCarousel';
+import FAQ from '../components/FAQ';
 
 const Home = ({ searchQuery, onAddToCart }) => {
   useEffect(() => {
@@ -21,6 +22,7 @@ const Home = ({ searchQuery, onAddToCart }) => {
         searchQuery={searchQuery} 
         onAddToCart={onAddToCart} 
       />
+      <FAQ />
       <ShowcaseCarousel />
     </main>
   );
