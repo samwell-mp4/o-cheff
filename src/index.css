@@ -88,3 +88,30 @@ h1, h2, h3, .font-gamer {
     padding: 0 1.5rem;
   }
 }
+
+/* Swiper Custom Styling */
+.promo-swiper .swiper-pagination-bullet {
+  background: var(--neon-cyan) !important;
+  opacity: 0.3;
+}
+
+.promo-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.category-swiper {
+  padding: 10px 0;
+}
+
+.category-swiper .swiper-slide {
+  width: auto !important;
+}
+
+.promo-swiper .swiper-slide {
+  transition: transform 0.5s ease;
+}
+
+.promo-swiper .swiper-slide-active {
+  z-index: 10;
+}

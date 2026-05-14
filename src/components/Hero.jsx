@@ -41,22 +41,7 @@ const Hero = () => {
           Itens Godlys, Chromas e Sets de <span className="text-white font-bold">Murder Mystery 2</span> com entrega instantânea e segurança absoluta.
         </motion.p>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="flex flex-wrap gap-6 justify-center mb-16"
-        >
-          <button 
-            onClick={() => document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' })}
-            className="btn-viral"
-          >
-            ACESSAR CATÁLOGO AGORA
-          </button>
-          <button className="px-10 py-4 bg-white/5 border border-white/10 text-white font-bebas text-xl tracking-widest hover:bg-white/10 transition-all rounded-sm">
-            VER TUTORIAIS
-          </button>
-        </motion.div>
+        {/* Botões removidos conforme solicitado */}
 
         {/* Cinematic Badges */}
         <motion.div 

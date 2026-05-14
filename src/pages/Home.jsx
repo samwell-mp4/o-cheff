@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Hero from '../components/Hero';
 import Catalog from '../components/Catalog';
+import PromotionsCarousel from '../components/PromotionsCarousel';
 
 const Home = ({ searchQuery, onAddToCart }) => {
   useEffect(() => {
@@ -14,6 +15,7 @@ const Home = ({ searchQuery, onAddToCart }) => {
   return (
     <main>
       <Hero />
+      <PromotionsCarousel onAddToCart={onAddToCart} />
       <Catalog 
         searchQuery={searchQuery} 
         onAddToCart={onAddToCart} 
