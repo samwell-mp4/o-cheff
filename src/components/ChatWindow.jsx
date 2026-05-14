@@ -1,13 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Send, User, Zap, ShieldCheck, CheckCircle } from 'lucide-react';
+import { Send, User, Zap, ShieldCheck, CheckCircle, MessageSquare } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 const ChatWindow = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Olá! Recebi seu pedido. Estou validando o pagamento no sistema.", sender: "bot", time: "Agora" }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [session, setSession] = useState(null);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) fetchMessages(session.user.id);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) fetchMessages(session.user.id);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchMessages = async (userId) => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`sender_id.eq.${userId}`)
+      .order('created_at', { ascending: true });
+    
+    if (!error) setMessages(data);
+
+    // Subscribe to new messages
+    const channel = supabase
+      .channel(`chat-${userId}`)
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'messages',
+        filter: `sender_id=eq.${userId}`
+      }, (payload) => {
+        setMessages(prev => {
+          if (prev.find(m => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -15,23 +57,20 @@ const ChatWindow = () => {
     }
   }, [messages]);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || !session) return;
 
-    const newMsg = { id: Date.now(), text: input, sender: "user", time: "Agora" };
-    setMessages(prev => [...prev, newMsg]);
-    setInput('');
-
-    // Simulated auto-response
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        text: "Perfeito! Já identifiquei seu Nick. Por favor, aceite a solicitação de amizade do usuário 'ChefaoDelivery_BOT' para receber o item.",
-        sender: "bot",
-        time: "Agora"
+    const { error } = await supabase
+      .from('messages')
+      .insert([{
+        text: input,
+        sender_id: session.user.id,
+        sender_name: session.user.user_metadata?.full_name || 'Cliente',
+        is_admin: false
       }]);
-    }, 2000);
+
+    if (!error) setInput('');
   };
 
   return (
@@ -58,29 +97,35 @@ const ChatWindow = () => {
           {/* Messages Area */}
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-8 space-y-6 scroll-smooth"
+            className="flex-1 overflow-y-auto p-8 space-y-6 scroll-smooth no-scrollbar"
           >
             {messages.map(msg => (
               <motion.div 
                 key={msg.id}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${!msg.is_admin ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`max-w-[80%] p-5 rounded-2xl text-sm leading-relaxed ${
-                  msg.sender === 'user' 
+                  !msg.is_admin 
                     ? 'bg-neon-cyan text-black font-bold rounded-tr-none' 
                     : 'bg-white/10 text-white rounded-tl-none border border-white/5'
                 }`}>
                   {msg.text}
                   <div className={`text-[9px] mt-2 opacity-50 uppercase tracking-widest ${
-                    msg.sender === 'user' ? 'text-black' : 'text-gray-400'
+                    !msg.is_admin ? 'text-black' : 'text-gray-400'
                   }`}>
-                    {msg.time}
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               </motion.div>
             ))}
+            {messages.length === 0 && (
+              <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
+                <MessageSquare className="w-16 h-16 mb-4" />
+                <p className="font-bebas text-xl tracking-widest uppercase">Envie uma mensagem para começar o atendimento</p>
+              </div>
+            )}
           </div>
 
           {/* Input Area */}

@@ -1,29 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ShoppingBag, Search, User, Zap, Menu, X } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+
+import mm2Items from '../data/mm2Items';
 
 const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState([]);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowResults(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      const filtered = mm2Items.filter(item => 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5);
+      setResults(filtered);
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+  }, [searchQuery]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
 
+  const handleResultClick = (slug) => {
+    setSearchQuery('');
+    setShowResults(false);
+    navigate(`/produto/${slug}`);
+  };
+
   const isActive = (path) => location.pathname === path;
 
   return (
     <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-2 sm:py-3' : 'py-4 sm:py-6'}`}>
-      {/* Dynamic Glassmorphism Background */}
+      {/* ... (background stays same) ... */}
       <div className={`absolute inset-0 transition-all duration-500 ${
         isScrolled 
           ? 'bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]' 
@@ -42,20 +76,61 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
           </span>
         </Link>
 
-        {/* Search Bar - Hidden on extra small mobile, integrated on others */}
-        <div className="hidden sm:flex relative flex-1 max-w-md group">
+        {/* Search Bar with Instant Results */}
+        <div ref={searchRef} className="hidden sm:flex relative flex-1 max-w-md group">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/10 to-[#BF00FF]/10 rounded-full blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
           <input
             type="text"
             placeholder="O QUE VOCÊ BUSCA?"
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (location.pathname !== '/shop' && location.pathname !== '/') navigate('/shop');
-            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
             className="relative w-full bg-white/5 border border-white/10 rounded-full py-2 px-10 text-white font-bebas tracking-widest text-sm focus:outline-none focus:border-[#00FFFF]/50 focus:bg-white/[0.08] transition-all placeholder:text-gray-500 uppercase"
           />
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 group-focus-within:text-[#00FFFF] transition-colors" />
+
+          {/* Results Dropdown */}
+          {showResults && results.length > 0 && (
+            <div className="absolute top-full left-0 w-full mt-3 bg-[#0a0a1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="p-2 space-y-1">
+                {results.map(item => (
+                  <div 
+                    key={item.id}
+                    onClick={() => handleResultClick(item.slug)}
+                    className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group/item"
+                  >
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/5 border border-white/5 group-hover/item:border-[#00FFFF]/30 transition-colors">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white font-bebas tracking-wider truncate group-hover/item:text-[#00FFFF] transition-colors">{item.name}</div>
+                      <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                        <span style={{ color: item.rarityColor }} className="brightness-125">{item.rarity}</span>
+                        <span className="w-1 h-1 bg-white/20 rounded-full" />
+                        <span>R$ {item.price.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <Zap className="w-4 h-4 text-[#00FFFF] opacity-0 group-hover/item:opacity-100 transition-all -translate-x-2 group-hover/item:translate-x-0" />
+                  </div>
+                ))}
+                <div 
+                  onClick={() => {
+                    navigate('/shop');
+                    setShowResults(false);
+                  }}
+                  className="p-3 text-center border-t border-white/5 mt-1 hover:bg-[#00FFFF]/5 transition-colors cursor-pointer"
+                >
+                  <span className="text-[10px] font-black text-[#00FFFF] tracking-[0.2em] uppercase">Ver todos os resultados</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showResults && results.length === 0 && (
+            <div className="absolute top-full left-0 w-full mt-3 bg-[#0a0a1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-2xl">
+              <p className="text-gray-500 font-bebas tracking-widest text-sm">Nenhum item encontrado</p>
+            </div>
+          )}
         </div>
 
         {/* Desktop Actions */}

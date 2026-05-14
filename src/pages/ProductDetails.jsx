@@ -194,7 +194,7 @@ const ProductDetails = ({ onAddToCart }) => {
           </section>
         )}
 
-        {/* Comments Section */}
+        {/* Comentado temporariamente conforme solicitado
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-32">
           <div className="lg:col-span-2">
             <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-neon-purple pl-6">
@@ -252,6 +252,7 @@ const ProductDetails = ({ onAddToCart }) => {
             </div>
           </div>
         </section>
+        */}
 
         {/* Global FAQ - Discreet Variant */}
         <FAQ variant="discreet" />
