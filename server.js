@@ -78,34 +78,46 @@ app.use(express.static(join(__dirname, 'dist')));
 
 // --- ADVANCED DYNAMIC SEO INJECTION ---
 const getModifiedHtml = (item = null) => {
-  const indexHtml = fs.readFileSync(join(__dirname, 'dist', 'index.html'), 'utf8');
-  
-  const baseTitle = "O Chefão dos Cards | Loja Oficial de Itens MM2";
-  const baseDesc = "A maior e melhor loja de itens Murder Mystery 2 (MM2) do Brasil. Godlys, Chromas, Ancients e Sets exclusivos com entrega imediata e o melhor preço do mercado.";
-  const baseUrl = "https://chefaodoscards.shop";
-  
-  const title = item ? `${item.name} | Comprar ${item.name} Original com Garantia` : baseTitle;
-  const description = item ? `Compre ${item.name} original (${item.category}) com entrega rápida, garantia e segurança. Confira preços e estoque disponível no Chefão dos Cards.` : baseDesc;
-  const url = item ? `${baseUrl}/produto/${item.slug}` : `${baseUrl}/`;
-  const image = item ? item.image : `${baseUrl}/og-image.png`;
+  try {
+    const indexPath = join(__dirname, 'dist', 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      console.error('ERRO: Arquivo dist/index.html não encontrado!');
+      return '<h1>Erro interno: Arquivo de build não encontrado. Verifique o deploy.</h1>';
+    }
 
-  return indexHtml
-    .replace(/https:\/\/ochefaodoscards\.com\.br/g, baseUrl)
-    .replace(/https:\/\/chefaodoscards\.com\.br/g, baseUrl)
-    .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
-    .replace(/<meta name="title" content=".*?" \/>/g, `<meta name="title" content="${title}" />`)
-    .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${description}" />`)
-    .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
-    .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
-    .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${image}" />`)
-    .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${url}" />`)
-    .replace(/<meta name="twitter:title" content=".*?" \/>/g, `<meta name="twitter:title" content="${title}" />`)
-    .replace(/<meta name="twitter:description" content=".*?" \/>/g, `<meta name="twitter:description" content="${description}" />`)
-    .replace(/<meta name="twitter:image" content=".*?" \/>/g, `<meta name="twitter:image" content="${image}" />`)
-    .replace(/<link rel="canonical" href=".*?" \/>/g, `<link rel="canonical" href="${url}" />`);
+    const indexHtml = fs.readFileSync(indexPath, 'utf8');
+    
+    const baseTitle = "O Chefão dos Cards | Loja Oficial de Itens MM2";
+    const baseDesc = "A maior e melhor loja de itens Murder Mystery 2 (MM2) do Brasil. Godlys, Chromas, Ancients e Sets exclusivos com entrega imediata e o melhor preço do mercado.";
+    const baseUrl = "https://chefaodoscards.shop";
+    
+    const title = item ? `${item.name} | Comprar ${item.name} Original com Garantia` : baseTitle;
+    const description = item ? `Compre ${item.name} original (${item.category}) com entrega rápida, garantia e segurança. Confira preços e estoque disponível no Chefão dos Cards.` : baseDesc;
+    const url = item ? `${baseUrl}/produto/${item.slug}` : `${baseUrl}/`;
+    const image = item ? item.image : `${baseUrl}/og-image.png`;
+
+    return indexHtml
+      .replace(/https:\/\/ochefaodoscards\.com\.br/g, baseUrl)
+      .replace(/https:\/\/chefaodoscards\.com\.br/g, baseUrl)
+      .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+      .replace(/<meta name="title" content=".*?" \/>/g, `<meta name="title" content="${title}" />`)
+      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${description}" />`)
+      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
+      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
+      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${image}" />`)
+      .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${url}" />`)
+      .replace(/<meta name="twitter:title" content=".*?" \/>/g, `<meta name="twitter:title" content="${title}" />`)
+      .replace(/<meta name="twitter:description" content=".*?" \/>/g, `<meta name="twitter:description" content="${description}" />`)
+      .replace(/<meta name="twitter:image" content=".*?" \/>/g, `<meta name="twitter:image" content="${image}" />`)
+      .replace(/<link rel="canonical" href=".*?" \/>/g, `<link rel="canonical" href="${url}" />`);
+  } catch (error) {
+    console.error('ERRO NA INJEÇÃO DE SEO:', error);
+    return '<h1>Erro ao carregar a página. Verifique os logs do servidor.</h1>';
+  }
 };
 
 app.get('/produto/:slug', (req, res) => {
+  console.log(`[SEO] Injetando metadados para: ${req.params.slug}`);
   const item = mm2Items.find(i => i.slug === req.params.slug);
   res.send(getModifiedHtml(item));
 });
@@ -113,11 +125,13 @@ app.get('/produto/:slug', (req, res) => {
 // SPA Fallback
 app.use((req, res, next) => {
   if (req.path.startsWith('/api') || req.path.includes('.')) return next();
+  console.log(`[ROUTE] Servindo Home/SPA para: ${req.path}`);
   res.send(getModifiedHtml());
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log('>>> SISTEMA O CHEFÃO ONLINE - v2.9 - PORTA: ' + PORT);
-  console.log('>>> AGUARDANDO COMANDOS DE ELITE...');
+  console.log('--- SERVIDOR DE ELITE ONLINE v3.0 ---');
+  console.log('>>> PORTA: ' + PORT);
+  console.log('>>> DOMÍNIO: https://chefaodoscards.shop');
 });
