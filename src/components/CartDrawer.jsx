@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingBag, Trash2, Plus, Minus, MessageSquare } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 
-const CartDrawer = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, onCheckout }) => {
+const CartDrawer = ({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onCheckout }) => {
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
@@ -50,27 +50,27 @@ const CartDrawer = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, onC
                     <img src={item.image} alt={item.name} className="w-20 h-20 object-contain drop-shadow-lg" />
                     <div className="flex-1">
                       <h3 className="font-bold text-lg mb-1">{item.name}</h3>
-                      <div className="text-neon-cyan font-bebas text-xl mb-3">R$ {item.price.toFixed(2)}</div>
+                      <div className="text-neon-cyan font-bebas text-xl mb-3">R$ {parseFloat(item.price).toFixed(2)}</div>
                       
                       <div className="flex items-center gap-4">
                         <div className="flex items-center bg-white/5 border border-white/10 rounded-lg overflow-hidden">
                           <button 
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => onUpdateQuantity(item.id, -1)}
                             className="p-1 hover:bg-white/10 text-gray-400 hover:text-white"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
                           <span className="w-8 text-center font-bold text-sm">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => onUpdateQuantity(item.id, 1)}
                             className="p-1 hover:bg-white/10 text-gray-400 hover:text-white"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
                         <button 
-                          onClick={() => removeFromCart(item.id)}
-                          className="text-gray-600 hover:text-red-500 transition-colors"
+                          onClick={() => onRemoveItem(item.id)}
+                          className="p-2 hover:bg-red-500/10 text-gray-500 hover:text-red-500 transition-all rounded-lg"
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -90,11 +90,11 @@ const CartDrawer = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, onC
                 </div>
                 <button 
                   onClick={onCheckout}
-                  className="btn-viral w-full py-4 flex items-center justify-center gap-3 text-xl"
+                  className="btn-viral w-full py-4 flex items-center justify-center gap-3 text-xl font-gamer tracking-tighter"
                 >
                   FINALIZAR COMPRA
                 </button>
-                <p className="text-center text-gray-600 text-xs mt-4 uppercase tracking-widest">
+                <p className="text-center text-gray-600 text-[10px] mt-4 uppercase tracking-[0.2em] font-bold">
                   Processamento instantâneo de pedido
                 </p>
               </div>

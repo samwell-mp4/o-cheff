@@ -115,6 +115,7 @@ const BannerCarousel = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={() => navigate('/shop')}
                       className="group bg-neon-cyan text-black px-10 py-5 rounded-2xl font-gamer font-black text-2xl tracking-tighter flex items-center gap-3 shadow-[0_0_30px_#00FFFF44] hover:shadow-[0_0_50px_#00FFFF66] transition-all"
                     >
                       VER INVENTÁRIO

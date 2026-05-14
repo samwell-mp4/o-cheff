@@ -14,157 +14,113 @@ import CartDrawer from './components/CartDrawer';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Footer from './components/Footer';
-import EventTracker from './components/EventTracker';
-import { useTracker } from './hooks/useTracker';
-import { supabase } from './lib/supabaseClient';
 import ScrollToTop from './components/ScrollToTop';
+import { supabase } from './lib/supabaseClient';
 
-// Componente para forçar o logout via URL
 const LogoutHandler = ({ onLogout }) => {
-  useEffect(() => {
-    onLogout();
-  }, [onLogout]);
-  return <div className="min-h-screen bg-[#050510] flex items-center justify-center text-red-500 font-bebas text-2xl tracking-widest uppercase italic animate-pulse">Deslogando...</div>;
+  useEffect(() => { onLogout(); }, [onLogout]);
+  return <div className="min-h-screen bg-[#050510] flex items-center justify-center text-red-500 font-bebas text-2xl animate-pulse">Deslogando...</div>;
 };
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { trackEvent } = useTracker();
   const [session, setSession] = useState(null);
-  const [statusAcesso, setStatusAcesso] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('chefao_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('chefao_cart') || '[]'));
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    console.log("Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
-    console.log("Supabase Key iniciada:", import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 10) + "...");
-  }, []);
-
-  useEffect(() => {
-    const startApp = async () => {
+    const syncAuth = async () => {
       const { data: { session: s } } = await supabase.auth.getSession();
-      setSession(s);
-      if (s) {
-        const { data, error } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
-        if (error) {
-          console.error("Erro cargo:", error);
-          alert("Erro ao ler seu cargo: " + error.message);
-        }
-        if (data) setStatusAcesso(data.role);
-      }
-      setLoading(false);
+      handleAuthChange(s);
     };
-    startApp();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
-      setSession(s);
-      if (s) {
-        setLoading(true);
-        const { data } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
-        if (data) setStatusAcesso(data.role);
-        setLoading(false);
-      } else {
-        setStatusAcesso(null);
-        setLoading(false);
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      handleAuthChange(s);
     });
+
+    syncAuth();
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (session) {
-      supabase.from('orders').select('*').order('created_at', { ascending: false }).then(({ data }) => {
-        if (data) setOrders(data);
-      });
+  const handleAuthChange = async (s) => {
+    setSession(s);
+    if (s) {
+      try {
+        const { data, error } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
+        setUserRole(!error && data ? data.role : 'user');
+      } catch (e) {
+        setUserRole('user');
+      }
+    } else {
+      setUserRole(null);
     }
-  }, [session]);
+    setLoading(false);
+  };
 
   useEffect(() => {
     localStorage.setItem('chefao_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const handleAddToCart = (p) => {
-    setCart(prev => {
-      const ex = prev.find(i => i.id === p.id);
-      if (ex) return prev.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...prev, { ...p, quantity: 1 }];
-    });
-    setIsCartOpen(true);
-    trackEvent('add_to_cart', { item_id: p.id, item_name: p.name });
-  };
-
-  const handleUpdateQuantity = (id, d) => setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + d) } : i));
-  const handleRemoveItem = (id) => setCart(prev => prev.filter(i => i.id !== id));
-  const handleAddOrder = (o) => setOrders(prev => [o, ...prev]);
-
   const handleLogout = async () => {
-    setLoading(true);
     await supabase.auth.signOut();
-    setSession(null);
-    setStatusAcesso(null);
     setCart([]);
     localStorage.removeItem('chefao_cart');
-    setLoading(false);
     navigate('/login');
   };
 
-  const isAdmin = location.pathname.startsWith('/admin');
+  const onAddToCart = (p) => {
+    setCart(prev => {
+      const ex = prev.find(i => i.id === p.id);
+      return ex ? prev.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i) : [...prev, { ...p, quantity: 1 }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen bg-[#050510]">
       <ScrollToTop />
-      <EventTracker />
-      {!isAdmin && (
+      {!isAdminPage && (
         <Navbar 
-          searchQuery={searchQuery} setSearchQuery={setSearchQuery} 
           cartCount={cart.reduce((a, b) => a + b.quantity, 0)} 
           onOpenCart={() => setIsCartOpen(true)}
-          session={session} onLogout={handleLogout}
+          session={session} 
+          userRole={userRole}
+          onLogout={handleLogout}
         />
       )}
       
       <CartDrawer 
         isOpen={isCartOpen} onClose={() => setIsCartOpen(false)}
-        cart={cart} onUpdateQuantity={handleUpdateQuantity} onRemoveItem={handleRemoveItem}
+        cart={cart} onUpdateQuantity={(id, d) => setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + d) } : i))}
+        onRemoveItem={(id) => setCart(prev => prev.filter(i => i.id !== id))}
         onCheckout={() => { setIsCartOpen(false); navigate('/checkout'); }}
       />
 
       <Routes>
-        <Route path="/" element={<Home onAddToCart={handleAddToCart} />} />
-        <Route path="/shop" element={<Shop onAddToCart={handleAddToCart} />} />
-        <Route path="/produto/:slug" element={<ProductDetails onAddToCart={handleAddToCart} />} />
-        <Route path="/checkout" element={<Checkout cart={cart} onClearCart={() => setCart([])} onAddOrder={handleAddOrder} />} />
+        <Route path="/" element={<Home onAddToCart={onAddToCart} />} />
+        <Route path="/shop" element={<Shop onAddToCart={onAddToCart} />} />
+        <Route path="/produto/:slug" element={<ProductDetails onAddToCart={onAddToCart} />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={session ? <UserDashboard onLogout={handleLogout} /> : <Navigate to="/login" />} />
-        <Route 
-          path="/admin" 
-          element={
-            session ? (
-              loading ? (
-                <div className="min-h-screen flex items-center justify-center text-neon-cyan font-bebas text-2xl tracking-widest">Verificando...</div>
-              ) : statusAcesso === 'admin' ? (
-                <AdminDashboard orders={orders} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/dashboard" />
-              )
-            ) : <Navigate to="/login" />
-          } 
-        />
+        <Route path="/checkout" element={<Checkout cart={cart} session={session} />} />
         <Route path="/orders" element={session ? <Orders /> : <Navigate to="/login" />} />
-        <Route path="/chat" element={<ChatWindow />} />
+        <Route path="/dashboard" element={session ? <UserDashboard onLogout={handleLogout} /> : <Navigate to="/login" />} />
+        <Route path="/admin/*" element={
+          session ? (
+            userRole === 'admin' ? <AdminDashboard onLogout={handleLogout} /> : <Navigate to="/dashboard" />
+          ) : <Navigate to="/login" />
+        } />
+        <Route path="/logout" element={<LogoutHandler onLogout={handleLogout} />} />
         <Route path="/termos" element={<Terms />} />
         <Route path="/privacidade" element={<Privacy />} />
-        <Route path="/logout" element={<LogoutHandler onLogout={handleLogout} />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
-      {!isAdmin && <Footer />}
+      {!isAdminPage && <Footer />}
     </div>
   );
 }

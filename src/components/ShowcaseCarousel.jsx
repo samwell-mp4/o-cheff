@@ -51,15 +51,23 @@ const ShowcaseCarousel = () => {
           {showcaseItems.map((item) => (
             <SwiperSlide key={item.id}>
               <div 
-                onClick={() => navigate(`/produto/${item.slug}`)}
-                className="glass-card rounded-3xl p-6 group cursor-pointer border-white/5 hover:border-neon-cyan/30 transition-all"
+                onClick={() => navigate(`/produto/${item.slug || item.id}`)}
+                className="glass-card rounded-[32px] p-8 group cursor-pointer border border-white/5 hover:border-neon-cyan/40 hover:shadow-[0_0_30px_rgba(0,255,255,0.1)] transition-all duration-500"
               >
-                <div className="h-40 flex items-center justify-center mb-4">
-                  <img src={item.image} alt={item.name} className="h-full object-contain group-hover:scale-110 transition-transform" />
+                <div className="h-48 flex items-center justify-center mb-6 relative">
+                  <div className="absolute inset-0 bg-neon-cyan/5 blur-3xl rounded-full scale-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500" 
+                  />
                 </div>
-                <div className="text-center">
-                  <h3 className="font-bold text-sm truncate mb-1">{item.name}</h3>
-                  <div className="text-neon-cyan font-bebas tracking-widest">R$ {parseFloat(item.price).toFixed(2)}</div>
+                <div className="text-center space-y-2">
+                  <h3 className="font-gamer text-lg font-bold tracking-tight truncate text-white/90 group-hover:text-neon-cyan transition-colors">{item.name}</h3>
+                  <div className="text-2xl font-black text-white flex items-center justify-center gap-2">
+                    <span className="text-xs text-gray-500 font-bebas tracking-tighter">R$</span>
+                    {parseFloat(item.price).toFixed(2)}
+                  </div>
                 </div>
               </div>
             </SwiperSlide>
