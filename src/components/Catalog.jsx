@@ -59,13 +59,13 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
           </div>
 
           {/* Column 2: Filters (Swipeable) */}
-          <div className="w-full lg:w-[60%]">
+          <div className="w-full lg:max-w-[65%] min-w-0">
             <Swiper
               slidesPerView={'auto'}
               spaceBetween={12}
               freeMode={true}
               modules={[FreeMode]}
-              className="category-swiper !overflow-visible"
+              className="category-swiper"
             >
               {categories.map((cat) => (
                 <SwiperSlide key={cat.id} className="!w-auto">
