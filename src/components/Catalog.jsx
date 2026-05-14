@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { FreeMode, Navigation, Pagination as SwiperPagination } from 'swiper/modules';
+import { FreeMode } from 'swiper/modules';
 import mm2Items from '../data/mm2Items';
 import ItemCard from './ItemCard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,6 @@ import { LayoutGrid, Flame, Sparkles, Box, Shield, Ghost, ChevronLeft, ChevronRi
 // Styles
 import 'swiper/css';
 import 'swiper/css/free-mode';
-import 'swiper/css/pagination';
 
 const categories = [
   { id: 'Todos', name: 'TODOS', icon: <LayoutGrid className="w-5 h-5" /> },
@@ -32,7 +31,6 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
     return matchesCategory && matchesSearch;
   });
 
-  // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeCategory, searchQuery]);
@@ -43,19 +41,25 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
 
   return (
     <section id="catalog" className="container py-32">
-      {/* Header & Category Selection */}
-      <div className="flex flex-col gap-12 mb-20">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-12">
-          <div className="relative text-center md:text-left">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-2 italic">
-              DATABASE DE <span className="neon-cyan">ITENS</span>
+      {/* Header & Category Selection - REDESIGNED FOR BALANCE */}
+      <div className="mb-20 border-b border-white/5 pb-12">
+        <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-12">
+          {/* Column 1: Title */}
+          <div className="flex-1 text-center lg:text-left min-w-fit">
+            <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 italic leading-tight uppercase">
+              DATABASE DE <br className="hidden md:block lg:hidden" />
+              <span className="neon-cyan">ITENS</span>
             </h2>
-            <p className="font-bebas text-2xl text-[#888888] tracking-widest uppercase">
-              FILTRANDO <span className="text-white">{filteredItems.length}</span> ARQUIVOS DE ELITE
-            </p>
+            <div className="flex items-center justify-center lg:justify-start gap-4">
+              <div className="h-1 w-12 bg-neon-cyan" />
+              <p className="font-bebas text-xl md:text-2xl text-[#888888] tracking-[0.2em] uppercase">
+                FILTRANDO <span className="text-white">{filteredItems.length}</span> ARQUIVOS
+              </p>
+            </div>
           </div>
 
-          <div className="w-full md:w-auto">
+          {/* Column 2: Filters (Swipeable) */}
+          <div className="w-full lg:w-[60%]">
             <Swiper
               slidesPerView={'auto'}
               spaceBetween={12}
@@ -67,14 +71,14 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
                 <SwiperSlide key={cat.id} className="!w-auto">
                   <button
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bebas text-2xl tracking-widest transition-all border whitespace-nowrap min-w-[140px] justify-center ${
+                    className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bebas text-xl tracking-widest transition-all border whitespace-nowrap min-w-[130px] justify-center ${
                       activeCategory === cat.id
                         ? 'bg-neon-cyan text-black border-neon-cyan shadow-[0_0_20px_rgba(0,255,255,0.4)]'
                         : 'bg-white/5 text-[#888888] border-white/10 hover:border-white/30 hover:text-white'
                     }`}
                   >
                     <span className="shrink-0">{cat.icon}</span>
-                    <span className="leading-none">{cat.name}</span>
+                    <span>{cat.name}</span>
                   </button>
                 </SwiperSlide>
               ))}
