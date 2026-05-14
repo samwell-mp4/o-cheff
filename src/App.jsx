@@ -16,10 +16,14 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
 import Footer from './components/Footer';
+import EventTracker from './components/EventTracker';
+import { useTracker } from './hooks/useTracker';
 
 function App() {
   const navigate = useNavigate();
+  const { trackEvent } = useTracker();
   const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('chefao_cart');
@@ -31,10 +35,12 @@ function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -75,6 +81,7 @@ function App() {
   }, [cart]);
 
   const handleAddToCart = (item, quantity = 1) => {
+    trackEvent('add_to_cart', { itemName: item.name, price: item.price, quantity });
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
@@ -82,7 +89,6 @@ function App() {
       }
       return [...prev, { ...item, quantity }];
     });
-    // setIsCartOpen(true); // Removed to allow continuous shopping
   };
 
   const handleRemoveFromCart = (id) => {
@@ -122,15 +128,20 @@ function App() {
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   return (
     <div className="min-h-screen">
-      <Navbar 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        cartCount={cartCount} 
-        onOpenCart={() => setIsCartOpen(true)}
-        session={session}
-      />
+      <EventTracker />
+      {!isAdminPage && (
+        <Navbar 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          cartCount={cartCount} 
+          onOpenCart={() => setIsCartOpen(true)}
+          session={session}
+        />
+      )}
       
       <CartDrawer 
         isOpen={isCartOpen}
@@ -153,8 +164,20 @@ function App() {
           element={<Checkout cart={cart} onClearCart={() => setCart([])} onAddOrder={handleAddOrder} />} 
         />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={session ? <AdminDashboard orders={orders} /> : <Navigate to="/login" />} />
-        <Route path="/orders" element={session ? <Orders /> : <Navigate to="/login" />} />
+        <Route 
+          path="/admin" 
+          element={
+            loading ? <div className="min-h-screen bg-[#050510]" /> : 
+            session ? <AdminDashboard orders={orders} /> : <Navigate to="/login" />
+          } 
+        />
+        <Route 
+          path="/orders" 
+          element={
+            loading ? <div className="min-h-screen bg-[#050510]" /> : 
+            session ? <Orders /> : <Navigate to="/login" />
+          } 
+        />
         <Route path="/chat" element={<ChatWindow />} />
         <Route path="/termos" element={<Terms />} />
         <Route path="/privacidade" element={<Privacy />} />

@@ -3,8 +3,6 @@ import { ShoppingBag, Search, User, Zap, Menu, X } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 
-import mm2Items from '../data/mm2Items';
-
 const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,16 +29,25 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
 
   useEffect(() => {
     if (searchQuery.length >= 2) {
-      const filtered = mm2Items.filter(item => 
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5);
-      setResults(filtered);
-      setShowResults(true);
+      fetchSearchResults();
     } else {
       setShowResults(false);
     }
   }, [searchQuery]);
+
+  const fetchSearchResults = async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .ilike('name', `%${searchQuery}%`)
+      .eq('is_active', true)
+      .limit(5);
+    
+    if (data) {
+      setResults(data);
+      setShowResults(true);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -57,7 +64,6 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
 
   return (
     <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-2 sm:py-3' : 'py-4 sm:py-6'}`}>
-      {/* ... (background stays same) ... */}
       <div className={`absolute inset-0 transition-all duration-500 ${
         isScrolled 
           ? 'bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]' 
@@ -65,7 +71,6 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
       }`} />
       
       <nav className="container relative z-10 px-4 flex items-center justify-between gap-4 md:gap-8">
-        {/* Logo Section */}
         <Link to="/" className="flex items-center gap-3 group shrink-0">
           <div className="relative">
             <Zap className={`transition-all duration-500 text-[#00FFFF] drop-shadow-[0_0_12px_#00FFFF] group-hover:scale-110 ${isScrolled ? 'w-6 h-6 sm:w-8 sm:h-8' : 'w-8 h-8 sm:w-10 sm:h-10'}`} />
@@ -76,7 +81,6 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
           </span>
         </Link>
 
-        {/* Search Bar with Instant Results */}
         <div ref={searchRef} className="hidden sm:flex relative flex-1 max-w-md group">
           <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF]/10 to-[#BF00FF]/10 rounded-full blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
           <input
@@ -89,7 +93,6 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
           />
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 group-focus-within:text-[#00FFFF] transition-colors" />
 
-          {/* Results Dropdown */}
           {showResults && results.length > 0 && (
             <div className="absolute top-full left-0 w-full mt-3 bg-[#0a0a1a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-300">
               <div className="p-2 space-y-1">
@@ -105,9 +108,9 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
                     <div className="flex-1 min-w-0">
                       <div className="text-white font-bebas tracking-wider truncate group-hover/item:text-[#00FFFF] transition-colors">{item.name}</div>
                       <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
-                        <span style={{ color: item.rarityColor }} className="brightness-125">{item.rarity}</span>
+                        <span style={{ color: item.rarity_color || '#fff' }} className="brightness-125">{item.rarity}</span>
                         <span className="w-1 h-1 bg-white/20 rounded-full" />
-                        <span>R$ {item.price.toFixed(2)}</span>
+                        <span>R$ {parseFloat(item.price).toFixed(2)}</span>
                       </div>
                     </div>
                     <Zap className="w-4 h-4 text-[#00FFFF] opacity-0 group-hover/item:opacity-100 transition-all -translate-x-2 group-hover/item:translate-x-0" />
@@ -125,15 +128,8 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
               </div>
             </div>
           )}
-
-          {showResults && results.length === 0 && (
-            <div className="absolute top-full left-0 w-full mt-3 bg-[#0a0a1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center shadow-2xl">
-              <p className="text-gray-500 font-bebas tracking-widest text-sm">Nenhum item encontrado</p>
-            </div>
-          )}
         </div>
 
-        {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-6 lg:gap-10">
           <div className="flex items-center gap-8">
             <Link to="/" className={`font-bebas text-lg tracking-widest transition-all hover:text-[#00FFFF] ${isActive('/') ? 'text-[#00FFFF]' : 'text-gray-300'}`}>INÍCIO</Link>
@@ -152,7 +148,7 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
 
             {session ? (
               <div className="flex items-center gap-4">
-                <Link to="/orders" className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                <Link to="/admin" className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                   <User className="w-5 h-5 text-gray-300" />
                 </Link>
                 <button onClick={handleLogout} className="font-bebas text-sm tracking-widest text-red-500/70 hover:text-red-500 uppercase transition-colors">Sair</button>
@@ -165,7 +161,6 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
           </div>
         </div>
 
-        {/* Mobile Action Icons */}
         <div className="flex md:hidden items-center gap-4 shrink-0">
           <button onClick={() => navigate('/shop')} className="sm:hidden text-gray-300 p-2">
             <Search className="w-6 h-6" />
@@ -180,7 +175,7 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
             )}
           </div>
 
-          <Link to={session ? "/orders" : "/login"} className="p-1">
+          <Link to={session ? "/admin" : "/login"} className="p-1">
             <User className="w-6 h-6 text-gray-300" />
           </Link>
         </div>

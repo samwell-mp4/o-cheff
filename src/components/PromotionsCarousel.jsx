@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectCoverflow, Pagination } from 'swiper/modules';
-import mm2Items from '../data/mm2Items';
 import { useNavigate } from 'react-router-dom';
 import { Zap, ShoppingCart, Star } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
 // Styles
 import 'swiper/css';
@@ -12,8 +12,22 @@ import 'swiper/css/pagination';
 
 const PromotionsCarousel = ({ onAddToCart }) => {
   const navigate = useNavigate();
-  // Get some high value items for promotion
-  const promoItems = mm2Items.filter(item => item.category === 'Chroma' || item.category === 'Valued').slice(0, 6);
+  const [promoItems, setPromoItems] = useState([]);
+
+  useEffect(() => {
+    const fetchPromos = async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .or('category.eq.Chroma,category.eq.Valued')
+        .eq('is_active', true)
+        .limit(6);
+      if (data) setPromoItems(data);
+    };
+    fetchPromos();
+  }, []);
+
+  if (promoItems.length === 0) return null;
 
   return (
     <section className="py-20 relative overflow-hidden">
@@ -73,9 +87,12 @@ const PromotionsCarousel = ({ onAddToCart }) => {
                   </div>
                   
                   <div className="flex items-center justify-between gap-4">
-                    <div className="text-xl md:text-2xl font-black neon-gold font-bebas whitespace-nowrap">R$ {item.price.toFixed(2).replace('.', ',')}</div>
+                    <div className="text-xl md:text-2xl font-black neon-gold font-bebas whitespace-nowrap">R$ {parseFloat(item.price).toFixed(2).replace('.', ',')}</div>
                     <button 
-                      onClick={() => onAddToCart(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddToCart(item);
+                      }}
                       className="btn-viral px-6 h-12 flex items-center gap-2 text-lg"
                     >
                       <ShoppingCart className="w-5 h-5" />

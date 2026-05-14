@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Hero from '../components/Hero';
+import BannerCarousel from '../components/BannerCarousel';
 import CategoryChoice from '../components/CategoryChoice';
 import PromotionsCarousel from '../components/PromotionsCarousel';
 import ShowcaseCarousel from '../components/ShowcaseCarousel';
@@ -18,6 +19,7 @@ const Home = ({ onAddToCart }) => {
   return (
     <main>
       <Hero />
+      <BannerCarousel />
       <CategoryChoice />
       <PromotionsCarousel onAddToCart={onAddToCart} />
       <ShowcaseCarousel />

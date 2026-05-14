@@ -1,42 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import mm2Items from '../data/mm2Items';
+import { supabase } from '../lib/supabaseClient';
 import ItemCard from '../components/ItemCard';
 import SEO from '../components/SEO';
 import FAQ from '../components/FAQ';
-import { ChevronLeft, ShoppingCart, ShieldCheck, Zap, ImageOff, Trophy, Star, Plus, Minus, MessageSquare, User, Home as HomeIcon } from 'lucide-react';
+import { ChevronLeft, ShoppingCart, ShieldCheck, Zap, ImageOff, Trophy, Star, Plus, Minus, MessageSquare, User, Home as HomeIcon, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const commentsData = [
-  { id: 1, user: "GamerPro99", text: "Entrega super rápida! Recebi meu item em 5 minutos. Recomendo demais o Chefão.", rating: 5, date: "Hoje" },
-  { id: 2, user: "RobloxKing", text: "Melhor preço do mercado. Comprei um Set Chroma e veio certinho.", rating: 5, date: "Ontem" },
-  { id: 3, user: "Lari_MM2", text: "Vendedor confiável. Fiquei com receio no início mas o suporte no zap é nota 10.", rating: 4, date: "2 dias atrás" },
-];
 
 const ProductDetails = ({ onAddToCart }) => {
   const { slug } = useParams();
-  const item = mm2Items.find(i => i.slug === slug);
+  const [item, setItem] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
-  const recommendations = mm2Items
-    .filter(i => i.category === item?.category && i.id !== item?.id)
-    .slice(0, 4);
-
   useEffect(() => {
+    fetchProduct();
     window.scrollTo(0, 0);
-    setQuantity(1);
-    setImgError(false);
-    setShowFullDescription(false);
   }, [slug]);
+
+  const fetchProduct = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    
+    if (data) {
+      setItem(data);
+      // Fetch recommendations
+      const { data: recs } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', data.category)
+        .neq('id', data.id)
+        .limit(4);
+      setRecommendations(recs || []);
+    }
+    setLoading(false);
+  };
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#050510] flex items-center justify-center">
+      <div className="w-12 h-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   if (!item) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-4xl font-black mb-6">REGISTRO NÃO ENCONTRADO</h2>
-          <Link to="/" className="neon-cyan font-bebas text-2xl hover:underline">VOLTAR PARA A DATABASE</Link>
+          <h2 className="text-4xl font-black mb-6 uppercase">REGISTRO NÃO ENCONTRADO</h2>
+          <Link to="/" className="text-neon-cyan font-bebas text-2xl hover:underline uppercase">VOLTAR PARA A DATABASE</Link>
         </div>
       </div>
     );
@@ -101,7 +119,7 @@ const ProductDetails = ({ onAddToCart }) => {
               </span>
               <div className="indicator-success font-bebas text-xl tracking-widest uppercase flex items-center gap-2">
                 <span className="w-2 h-2 bg-[#00FF00] rounded-full animate-ping" />
-                ESTOQUE DISPONÍVEL
+                {item.stock > 0 ? 'ESTOQUE DISPONÍVEL' : 'SEM ESTOQUE'}
               </div>
             </div>
 
@@ -110,7 +128,7 @@ const ProductDetails = ({ onAddToCart }) => {
             </h1>
             
             <div className="text-6xl font-black neon-gold font-bebas tracking-tighter mb-10">
-              R$ {item.price.toFixed(2).replace('.', ',')}
+              R$ {parseFloat(item.price).toFixed(2).replace('.', ',')}
             </div>
 
             <div className="mb-12 border-l-4 border-[#00FFFF]/30 pl-8">
@@ -133,6 +151,7 @@ const ProductDetails = ({ onAddToCart }) => {
                 <li className="flex items-center gap-2"><Zap className="w-4 h-4 text-neon-cyan" /> ENTREGA IMEDIATA</li>
                 <li className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-neon-cyan" /> GARANTIA VITALÍCIA</li>
                 <li className="flex items-center gap-2"><Star className="w-4 h-4 text-neon-cyan" /> ITEM 100% ORIGINAL</li>
+                <li className="flex items-center gap-2"><Package className="w-4 h-4 text-neon-green" /> {item.stock} UNIDADES EM ESTOQUE</li>
               </ul>
             </div>
 
@@ -152,18 +171,19 @@ const ProductDetails = ({ onAddToCart }) => {
                   className="w-16 bg-transparent text-center text-2xl font-bold font-gamer"
                 />
                 <button 
-                  onClick={() => setQuantity(prev => prev + 1)}
+                  onClick={() => setQuantity(prev => Math.max(1, Math.min(item.stock, prev + 1)))}
                   className="w-12 h-full flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"
                 >
                   <Plus className="w-6 h-6" />
                 </button>
               </div>
               <button 
-                onClick={() => onAddToCart(item, quantity)}
-                className="btn-viral flex-1 h-16 flex items-center justify-center gap-4 text-2xl"
+                onClick={() => item.stock > 0 && onAddToCart(item, quantity)}
+                disabled={item.stock <= 0}
+                className={`btn-viral flex-1 h-16 flex items-center justify-center gap-4 text-2xl ${item.stock <= 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
               >
                 <ShoppingCart className="w-8 h-8" />
-                COMPRAR AGORA
+                {item.stock > 0 ? 'COMPRAR AGORA' : 'ESGOTADO'}
               </button>
             </div>
 
@@ -194,79 +214,9 @@ const ProductDetails = ({ onAddToCart }) => {
           </section>
         )}
 
-        {/* Comentado temporariamente conforme solicitado
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-32">
-          <div className="lg:col-span-2">
-            <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-neon-purple pl-6">
-              AVALIAÇÕES DE <span className="neon-purple">CLIENTES</span>
-            </h2>
-            <div className="space-y-8">
-              {commentsData.map(comment => (
-                <div key={comment.id} className="glass-card p-8 rounded-3xl relative overflow-hidden">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-neon-purple/20 rounded-full flex items-center justify-center">
-                        <User className="text-neon-purple w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-lg">{comment.user}</div>
-                        <div className="text-xs text-[#888888] uppercase tracking-widest font-bebas">{comment.date}</div>
-                      </div>
-                    </div>
-                    <div className="flex text-[#FFD700]">
-                      {[...Array(comment.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-[#E0E0E0] leading-relaxed italic">"{comment.text}"</p>
-                  <div className="absolute top-4 right-4 bg-neon-green/10 text-neon-green text-[10px] px-2 py-1 rounded-sm font-bold uppercase tracking-widest">
-                    Compra Verificada
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:col-span-1">
-            <div className="glass-card p-10 rounded-[40px] sticky top-32">
-              <h3 className="text-2xl font-black mb-6 font-gamer tracking-tighter">O CHEFÃO É <span className="neon-green">OFICIAL</span>?</h3>
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <Trophy className="w-6 h-6 text-gold" />
-                  <span className="text-sm text-[#888888] uppercase tracking-widest font-bold">+50.000 Itens Entregues</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Star className="w-6 h-6 text-gold fill-current" />
-                  <span className="text-sm text-[#888888] uppercase tracking-widest font-bold">Avaliação 4.9/5 estrelas</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <MessageSquare className="w-6 h-6 text-[#00FFFF]" />
-                  <span className="text-sm text-[#888888] uppercase tracking-widest font-bold">Suporte 24/7 Oficial</span>
-                </div>
-              </div>
-              <hr className="my-8 border-white/5" />
-              <div className="bg-neon-green/10 p-4 rounded-xl text-center">
-                <p className="text-neon-green font-bold uppercase tracking-widest text-xs">Vendedor Verificado</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        */}
-
         {/* Global FAQ - Discreet Variant */}
         <FAQ variant="discreet" />
       </div>
-      
-      {/* Noscript SEO Fallback */}
-      <noscript>
-        <div className="p-20 text-center">
-          <h1>{item.name}</h1>
-          <p>{item.description || item.name}</p>
-          <p>Categoria: {item.category} - Preço: R$ {item.price}</p>
-          <a href="/#catalog">Ver catálogo completo de Murder Mystery 2</a>
-        </div>
-      </noscript>
     </div>
   );
 };
