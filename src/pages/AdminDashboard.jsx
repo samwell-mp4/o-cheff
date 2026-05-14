@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-const AdminDashboard = ({ orders }) => {
+const AdminDashboard = ({ orders = [], onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [allMessages, setAllMessages] = useState([]);
   const [products, setProducts] = useState([]);
@@ -208,7 +208,8 @@ const AdminDashboard = ({ orders }) => {
     if (!error) setAdminInput('');
   };
 
-  const totalSales = orders.reduce((acc, o) => acc + o.total, 0);
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const totalSales = safeOrders.reduce((acc, o) => acc + (parseFloat(o.total) || 0), 0);
 
   const userChats = Object.entries(
     allMessages.reduce((acc, m) => {
@@ -274,7 +275,10 @@ const AdminDashboard = ({ orders }) => {
         </nav>
 
         <div className="p-6 border-t border-white/5">
-          <button className="flex items-center gap-4 text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2">
+          <button 
+            onClick={onLogout}
+            className="flex items-center gap-4 text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2"
+          >
             <LogOut className="w-5 h-5" />
             {sidebarOpen && <span className="font-bebas text-lg tracking-widest">Sair</span>}
           </button>
@@ -306,7 +310,7 @@ const AdminDashboard = ({ orders }) => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
                   { label: 'Receita Total', val: `R$ ${totalSales.toFixed(2)}`, icon: TrendingUp, color: 'text-neon-cyan', trend: '+12.5%' },
-                  { label: 'Pedidos Realizados', val: orders.length, icon: ShoppingCart, color: 'text-neon-purple', trend: '+5.2%' },
+                  { label: 'Pedidos Realizados', val: safeOrders.length, icon: ShoppingCart, color: 'text-neon-purple', trend: '+5.2%' },
                   { label: 'Usuários Ativos', val: userChats.length, icon: Users, color: 'text-gold', trend: '+24%' },
                   { label: 'Taxa de Conversão', val: '64%', icon: ArrowUpRight, color: 'text-neon-green', trend: '+3.1%' },
                 ].map((stat, i) => (
@@ -337,13 +341,13 @@ const AdminDashboard = ({ orders }) => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
-                        {orders.slice(0, 5).map(o => (
+                        {safeOrders.slice(0, 5).map(o => (
                           <tr key={o.id} className="hover:bg-white/[0.02] transition-colors">
                             <td className="p-8 flex items-center gap-3">
                               <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center text-[10px] font-bold">{o.customer_name?.[0] || 'U'}</div>
                               <div><div className="font-bold">{o.customer_name}</div><div className="text-[10px] text-gray-500 font-mono">@{o.roblox_nick}</div></div>
                             </td>
-                            <td className="p-8 font-bold">R$ {o.total.toFixed(2)}</td>
+                            <td className="p-8 font-bold">R$ {parseFloat(o.total).toFixed(2)}</td>
                             <td className="p-8"><span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter ${o.status === 'Pago' ? 'bg-neon-green/10 text-neon-green' : 'bg-gold/10 text-gold'}`}>{o.status}</span></td>
                             <td className="p-8 text-gray-500 text-xs">{new Date(o.created_at).toLocaleDateString()}</td>
                           </tr>

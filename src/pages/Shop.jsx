@@ -33,15 +33,25 @@ const Shop = ({ searchQuery: navSearch, onAddToCart }) => {
   }, [location]);
 
   const fetchProducts = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-    
-    if (!error) setProducts(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error("Erro Supabase Shop:", error);
+        alert("Erro ao carregar produtos: " + error.message);
+      } else if (data) {
+        setProducts(data);
+      }
+    } catch (err) {
+      console.error("Erro fatal Shop:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const categories = [
@@ -56,18 +66,20 @@ const Shop = ({ searchQuery: navSearch, onAddToCart }) => {
 
   const filteredItems = useMemo(() => {
     return products.filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes((localSearch || navSearch).toLowerCase());
+      const name = item?.name || '';
+      const query = (localSearch || navSearch || '').toLowerCase();
+      const matchesSearch = name.toLowerCase().includes(query);
       const matchesCategory = activeCategory === 'Todos' || item.category === activeCategory;
       const matchesRarity = activeRarity === 'Todas' || item.rarity === activeRarity;
-      const matchesStock = !onlyInStock || item.stock > 0;
-      const matchesPrice = item.price >= priceRange[0] && item.price <= priceRange[1];
+      const matchesStock = !onlyInStock || (item.stock > 0);
+      const matchesPrice = (item.price || 0) >= priceRange[0] && (item.price || 0) <= priceRange[1];
 
       return matchesSearch && matchesCategory && matchesRarity && matchesStock && matchesPrice;
     }).sort((a, b) => {
-      if (sortBy === 'price-low') return a.price - b.price;
-      if (sortBy === 'price-high') return b.price - a.price;
-      if (sortBy === 'az') return a.name.localeCompare(b.name);
-      if (sortBy === 'latest') return new Date(b.created_at) - new Date(a.created_at);
+      if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
+      if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
+      if (sortBy === 'az') return (a.name || '').localeCompare(b.name || '');
+      if (sortBy === 'latest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
       return 0;
     });
   }, [products, activeCategory, activeRarity, onlyInStock, priceRange, sortBy, localSearch, navSearch]);

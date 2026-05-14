@@ -1,78 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import { supabase } from './lib/supabaseClient';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetails from './pages/ProductDetails';
-import CartDrawer from './components/CartDrawer';
 import Checkout from './pages/Checkout';
-import FloatingCart from './components/FloatingCart';
-import AdminDashboard from './pages/AdminDashboard';
-import ChatWindow from './components/ChatWindow';
-import Login from './pages/Login';
 import Orders from './pages/Orders';
+import Login from './pages/Login';
+import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard';
+import ChatWindow from './components/ChatWindow';
+import CartDrawer from './components/CartDrawer';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
-import Refund from './pages/Refund';
 import Footer from './components/Footer';
 import EventTracker from './components/EventTracker';
 import { useTracker } from './hooks/useTracker';
+import { supabase } from './lib/supabaseClient';
 
-function App() {
+export default function App() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { trackEvent } = useTracker();
   const [session, setSession] = useState(null);
+  const [statusAcesso, setStatusAcesso] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('chefao_cart');
     return saved ? JSON.parse(saved) : [];
   });
-  const [orders, setOrders] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const startApp = async () => {
+      const { data: { session: s } } = await supabase.auth.getSession();
+      setSession(s);
+      if (s) {
+        const { data } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
+        if (data) setStatusAcesso(data.role);
+      }
       setLoading(false);
-    });
+    };
+    startApp();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, s) => {
+      setSession(s);
+      if (s) {
+        setLoading(true);
+        const { data } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
+        if (data) setStatusAcesso(data.role);
+        setLoading(false);
+      } else {
+        setStatusAcesso(null);
+        setLoading(false);
+      }
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
     if (session) {
-      const fetchOrders = async () => {
-        // If admin, fetch all. If user, fetch only theirs.
-        // For now, let's just fetch all for the admin dashboard and filter in the Orders page.
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (!error) setOrders(data);
-      };
-
-      fetchOrders();
-
-      const channel = supabase
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setOrders(prev => [payload.new, ...prev]);
-          } else if (payload.eventType === 'UPDATE') {
-            setOrders(prev => prev.map(o => o.id === payload.new.id ? payload.new : o));
-          }
-        })
-        .subscribe();
-
-      return () => supabase.removeChannel(channel);
+      supabase.from('orders').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+        if (data) setOrders(data);
+      });
     }
   }, [session]);
 
@@ -80,114 +72,79 @@ function App() {
     localStorage.setItem('chefao_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const handleAddToCart = (item, quantity = 1) => {
-    trackEvent('add_to_cart', { itemName: item.name, price: item.price, quantity });
+  const handleAddToCart = (p) => {
     setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i);
-      }
-      return [...prev, { ...item, quantity }];
+      const ex = prev.find(i => i.id === p.id);
+      if (ex) return prev.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i);
+      return [...prev, { ...p, quantity: 1 }];
     });
+    setIsCartOpen(true);
+    trackEvent('add_to_cart', { item_id: p.id, item_name: p.name });
   };
 
-  const handleRemoveFromCart = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
+  const handleUpdateQuantity = (id, d) => setCart(prev => prev.map(i => i.id === id ? { ...i, quantity: Math.max(1, i.quantity + d) } : i));
+  const handleRemoveItem = (id) => setCart(prev => prev.filter(i => i.id !== id));
+  const handleAddOrder = (o) => setOrders(prev => [o, ...prev]);
+
+  const handleLogout = async () => {
+    setLoading(true);
+    await supabase.auth.signOut();
+    setSession(null);
+    setStatusAcesso(null);
+    setCart([]);
+    localStorage.removeItem('chefao_cart');
+    setLoading(false);
+    navigate('/login');
   };
 
-  const handleUpdateQuantity = (id, delta) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, item.quantity + delta);
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }));
-  };
-
-  const handleAddOrder = async (newOrder) => {
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([{
-        user_id: session?.user?.id,
-        order_id: newOrder.id,
-        customer_name: newOrder.name,
-        whatsapp: newOrder.whatsapp,
-        roblox_nick: newOrder.robloxNick,
-        items: newOrder.items,
-        total: newOrder.total,
-        status: newOrder.status,
-        mp_id: newOrder.mp_id
-      }])
-      .select()
-      .single();
-    
-    if (error) console.error('Error saving order:', error);
-    return data;
-  };
-
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-
-  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#050510]">
       <EventTracker />
-      {!isAdminPage && (
+      {!isAdmin && (
         <Navbar 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-          cartCount={cartCount} 
+          searchQuery={searchQuery} setSearchQuery={setSearchQuery} 
+          cartCount={cart.reduce((a, b) => a + b.quantity, 0)} 
           onOpenCart={() => setIsCartOpen(true)}
-          session={session}
+          session={session} onLogout={handleLogout}
         />
       )}
       
       <CartDrawer 
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        updateQuantity={handleUpdateQuantity}
-        removeFromCart={handleRemoveFromCart}
-        onCheckout={() => {
-          setIsCartOpen(false);
-          navigate('/checkout');
-        }}
+        isOpen={isCartOpen} onClose={() => setIsCartOpen(false)}
+        cart={cart} onUpdateQuantity={handleUpdateQuantity} onRemoveItem={handleRemoveItem}
+        onCheckout={() => { setIsCartOpen(false); navigate('/checkout'); }}
       />
 
       <Routes>
-        <Route path="/" element={<Home searchQuery={searchQuery} onAddToCart={handleAddToCart} />} />
-        <Route path="/shop" element={<Shop searchQuery={searchQuery} onAddToCart={handleAddToCart} />} />
+        <Route path="/" element={<Home onAddToCart={handleAddToCart} />} />
+        <Route path="/shop" element={<Shop onAddToCart={handleAddToCart} />} />
         <Route path="/produto/:slug" element={<ProductDetails onAddToCart={handleAddToCart} />} />
-        <Route 
-          path="/checkout" 
-          element={<Checkout cart={cart} onClearCart={() => setCart([])} onAddOrder={handleAddOrder} />} 
-        />
+        <Route path="/checkout" element={<Checkout cart={cart} onClearCart={() => setCart([])} onAddOrder={handleAddOrder} />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={session ? <UserDashboard onLogout={handleLogout} /> : <Navigate to="/login" />} />
         <Route 
           path="/admin" 
           element={
-            loading ? <div className="min-h-screen bg-[#050510]" /> : 
-            session ? <AdminDashboard orders={orders} /> : <Navigate to="/login" />
+            session ? (
+              loading ? (
+                <div className="min-h-screen flex items-center justify-center text-neon-cyan font-bebas text-2xl tracking-widest">Verificando...</div>
+              ) : statusAcesso === 'admin' ? (
+                <AdminDashboard orders={orders} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/dashboard" />
+              )
+            ) : <Navigate to="/login" />
           } 
         />
-        <Route 
-          path="/orders" 
-          element={
-            loading ? <div className="min-h-screen bg-[#050510]" /> : 
-            session ? <Orders /> : <Navigate to="/login" />
-          } 
-        />
+        <Route path="/orders" element={session ? <Orders /> : <Navigate to="/login" />} />
         <Route path="/chat" element={<ChatWindow />} />
         <Route path="/termos" element={<Terms />} />
         <Route path="/privacidade" element={<Privacy />} />
-        <Route path="/reembolso" element={<Refund />} />
       </Routes>
 
-      <Footer />
-      <FloatingCart count={cartCount} onOpenCart={() => setIsCartOpen(true)} />
+      {!isAdmin && <Footer />}
     </div>
   );
 }
-
-export default App;
