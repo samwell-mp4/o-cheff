@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /checkout
 Disallow: /chat
 
-Sitemap: https://chefaodoscards.com.br/sitemap.xml
+Sitemap: https://chefaodoscards.shop/sitemap.xml

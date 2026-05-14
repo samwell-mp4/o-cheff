@@ -84,7 +84,7 @@ app.get('/produto/:slug', (req, res) => {
   if (item) {
     const title = `${item.name} | Comprar ${item.name} Original com Garantia`;
     const description = `Compre ${item.name} original (${item.category}) com entrega rápida, garantia e segurança. Confira preços e estoque disponível no Chefão dos Cards.`;
-    const url = `https://chefaodoscards.com.br/produto/${item.slug}`;
+    const url = `https://chefaodoscards.shop/produto/${item.slug}`;
     
     let modifiedHtml = indexHtml
       .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)

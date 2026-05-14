@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://chefaodoscards.com.br/</loc>
+    <loc>https://chefaodoscards.shop/</loc>
     <lastmod>2026-05-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <!-- Dinamicamente gerado para os produtos -->
-  <url><loc>https://chefaodoscards.com.br/produto/eggblade</loc><priority>0.8</priority></url>
-  <url><loc>https://chefaodoscards.com.br/produto/bioblade</loc><priority>0.8</priority></url>
-  <url><loc>https://chefaodoscards.com.br/produto/cookieblade</loc><priority>0.8</priority></url>
-  <url><loc>https://chefaodoscards.com.br/produto/eternal-i</loc><priority>0.8</priority></url>
-  <url><loc>https://chefaodoscards.com.br/produto/nebula</loc><priority>0.8</priority></url>
-  <url><loc>https://chefaodoscards.com.br/produto/chroma-candeflame</loc><priority>0.9</priority></url>
-  <url><loc>https://chefaodoscards.com.br/produto/chroma-elderwood-blade</loc><priority>0.9</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/eggblade</loc><priority>0.8</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/bioblade</loc><priority>0.8</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/cookieblade</loc><priority>0.8</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/eternal-i</loc><priority>0.8</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/nebula</loc><priority>0.8</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/chroma-candeflame</loc><priority>0.9</priority></url>
+  <url><loc>https://chefaodoscards.shop/produto/chroma-elderwood-blade</loc><priority>0.9</priority></url>
 </urlset>
