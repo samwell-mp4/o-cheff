@@ -4,7 +4,7 @@ import { FreeMode } from 'swiper/modules';
 import mm2Items from '../data/mm2Items';
 import ItemCard from './ItemCard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, Flame, Sparkles, Box, Shield, Ghost, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, Flame, Sparkles, Box, Shield, Ghost, ChevronLeft, ChevronRight, Anchor } from 'lucide-react';
 
 // Styles
 import 'swiper/css';
@@ -17,6 +17,7 @@ const categories = [
   { id: 'Set', name: 'SETS', icon: <Box className="w-5 h-5" /> },
   { id: 'Valued', name: 'VALUED', icon: <Shield className="w-5 h-5" /> },
   { id: 'Pet', name: 'PETS', icon: <Ghost className="w-5 h-5" /> },
+  { id: 'Sailor Piece', name: 'SAILOR', icon: <Anchor className="w-5 h-5" /> },
 ];
 
 const ITEMS_PER_PAGE = 12;
