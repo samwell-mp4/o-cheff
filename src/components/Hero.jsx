@@ -26,7 +26,7 @@ const Hero = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-7xl md:text-9xl font-black mb-8 leading-none tracking-tighter"
+          className="text-5xl sm:text-7xl md:text-9xl font-black mb-8 leading-none tracking-tighter"
         >
           <span className="block">DOMINE O</span>
           <span className="neon-cyan">INVENTÁRIO</span>

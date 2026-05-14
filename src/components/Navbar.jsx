@@ -14,9 +14,9 @@ const Navbar = ({ searchQuery, setSearchQuery, cartCount, onOpenCart, session })
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-black/50 backdrop-blur-lg border-b border-[#00FFFF]/30 py-4 shadow-[0_5px_20px_rgba(0,0,0,0.5)]">
       <nav className="container flex items-center justify-between gap-4">
-        <Link to="/" className="text-2xl font-black flex items-center gap-2 group">
-          <Zap className="w-8 h-8 text-[#00FFFF] drop-shadow-[0_0_8px_#00FFFF] group-hover:animate-pulse" />
-          <span className="font-gamer tracking-tighter">
+        <Link to="/" className="text-xl sm:text-2xl font-black flex items-center gap-2 group">
+          <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-[#00FFFF] drop-shadow-[0_0_8px_#00FFFF] group-hover:animate-pulse" />
+          <span className="font-gamer tracking-tighter whitespace-nowrap">
             O <span className="neon-cyan">CHEFÃO</span>
           </span>
         </Link>

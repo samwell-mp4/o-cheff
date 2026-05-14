@@ -19,7 +19,7 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20">
         <div className="relative">
           <div className="absolute -left-6 top-0 w-2 h-full bg-[#00FFFF] shadow-[0_0_15px_#00FFFF]" />
-          <h2 className="text-5xl font-black tracking-tighter mb-2">CATÁLOGO DE <span className="neon-cyan">ELITE</span></h2>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tighter mb-2">CATÁLOGO DE <span className="neon-cyan">ELITE</span></h2>
           <p className="font-bebas text-2xl text-[#888888] tracking-widest uppercase">
             Sincronizando <span className="text-white">{filteredItems.length}</span> registros ativos
           </p>

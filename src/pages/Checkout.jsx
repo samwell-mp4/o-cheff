@@ -211,7 +211,7 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="glass-card p-10 rounded-3xl">
-                  <h2 className="text-3xl font-black mb-8 font-gamer flex items-center gap-4">
+                  <h2 className="text-2xl sm:text-3xl font-black mb-8 font-gamer flex items-center gap-4">
                     {session ? <User className="text-neon-cyan" /> : (isLoginMode ? <LogIn className="text-neon-cyan" /> : <UserPlus className="text-neon-purple" />)}
                     {session ? 'IDENTIFICAÇÃO' : (isLoginMode ? 'ACESSAR CONTA' : 'CRIAR CONTA')}
                   </h2>
@@ -287,7 +287,7 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
 
               {step === 2 && (
                 <motion.div key="step2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="glass-card p-10 rounded-3xl">
-                  <h2 className="text-3xl font-black mb-8 font-gamer flex items-center gap-4"><Gamepad2 className="text-neon-purple" /> DADOS DE ENTREGA</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black mb-8 font-gamer flex items-center gap-4"><Gamepad2 className="text-neon-purple" /> DADOS DE ENTREGA</h2>
                   <div className="space-y-6">
                     <div>
                       <label className="block text-[#888888] font-bebas text-lg tracking-widest mb-2 uppercase">Nickname no Roblox</label>
@@ -333,7 +333,7 @@ const Checkout = ({ cart, onClearCart, onAddOrder }) => {
               {step === 4 && (
                 <motion.div key="success" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card p-16 rounded-[40px] text-center border-neon-green/30">
                   <div className="w-24 h-24 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-8"><Check className="w-12 h-12 text-neon-green" /></div>
-                  <h2 className="text-5xl font-black mb-4 font-gamer uppercase">PEDIDO <span className="neon-green">PAGO</span></h2>
+                  <h2 className="text-3xl sm:text-5xl font-black mb-4 font-gamer uppercase">PEDIDO <span className="neon-green">PAGO</span></h2>
                   <p className="text-[#888888] font-bebas text-2xl tracking-widest mb-12 uppercase">Venda confirmada no sistema!</p>
                   <button onClick={() => navigate('/chat')} className="btn-viral w-full py-6 text-2xl flex items-center justify-center gap-4">
                     <MessageCircle className="w-8 h-8" /> RECEBER MEU ITEM

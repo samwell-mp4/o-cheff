@@ -111,7 +111,7 @@ const ProductDetails = ({ onAddToCart }) => {
               </div>
             </div>
 
-            <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tighter leading-none">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 tracking-tighter leading-none">
               {item.name}
             </h1>
             
