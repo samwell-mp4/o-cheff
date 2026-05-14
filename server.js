@@ -77,36 +77,43 @@ app.get('/api/check-payment/:id', async (req, res) => {
 app.use(express.static(join(__dirname, 'dist')));
 
 // --- ADVANCED DYNAMIC SEO INJECTION ---
-const indexHtml = fs.readFileSync(join(__dirname, 'dist', 'index.html'), 'utf8');
+const getModifiedHtml = (item = null) => {
+  const indexHtml = fs.readFileSync(join(__dirname, 'dist', 'index.html'), 'utf8');
+  
+  const baseTitle = "O Chefão dos Cards | Loja Oficial de Itens MM2";
+  const baseDesc = "A maior e melhor loja de itens Murder Mystery 2 (MM2) do Brasil. Godlys, Chromas, Ancients e Sets exclusivos com entrega imediata e o melhor preço do mercado.";
+  const baseUrl = "https://chefaodoscards.shop";
+  
+  const title = item ? `${item.name} | Comprar ${item.name} Original com Garantia` : baseTitle;
+  const description = item ? `Compre ${item.name} original (${item.category}) com entrega rápida, garantia e segurança. Confira preços e estoque disponível no Chefão dos Cards.` : baseDesc;
+  const url = item ? `${baseUrl}/produto/${item.slug}` : `${baseUrl}/`;
+  const image = item ? item.image : `${baseUrl}/og-image.png`;
+
+  return indexHtml
+    .replace(/https:\/\/ochefaodoscards\.com\.br/g, baseUrl)
+    .replace(/https:\/\/chefaodoscards\.com\.br/g, baseUrl)
+    .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+    .replace(/<meta name="title" content=".*?" \/>/g, `<meta name="title" content="${title}" />`)
+    .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${description}" />`)
+    .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
+    .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
+    .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${image}" />`)
+    .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${url}" />`)
+    .replace(/<meta name="twitter:title" content=".*?" \/>/g, `<meta name="twitter:title" content="${title}" />`)
+    .replace(/<meta name="twitter:description" content=".*?" \/>/g, `<meta name="twitter:description" content="${description}" />`)
+    .replace(/<meta name="twitter:image" content=".*?" \/>/g, `<meta name="twitter:image" content="${image}" />`)
+    .replace(/<link rel="canonical" href=".*?" \/>/g, `<link rel="canonical" href="${url}" />`);
+};
 
 app.get('/produto/:slug', (req, res) => {
   const item = mm2Items.find(i => i.slug === req.params.slug);
-  if (item) {
-    const title = `${item.name} | Comprar ${item.name} Original com Garantia`;
-    const description = `Compre ${item.name} original (${item.category}) com entrega rápida, garantia e segurança. Confira preços e estoque disponível no Chefão dos Cards.`;
-    const url = `https://chefaodoscards.shop/produto/${item.slug}`;
-    
-    let modifiedHtml = indexHtml
-      .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
-      .replace(/<meta name="title" content=".*?" \/>/g, `<meta name="title" content="${title}" />`)
-      .replace(/<meta name="description" content=".*?" \/>/g, `<meta name="description" content="${description}" />`)
-      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${title}" />`)
-      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${description}" />`)
-      .replace(/<meta property="og:image" content=".*?" \/>/g, `<meta property="og:image" content="${item.image}" />`)
-      .replace(/<meta property="og:url" content=".*?" \/>/g, `<meta property="og:url" content="${url}" />`)
-      .replace(/<meta name="twitter:title" content=".*?" \/>/g, `<meta name="twitter:title" content="${title}" />`)
-      .replace(/<meta name="twitter:description" content=".*?" \/>/g, `<meta name="twitter:description" content="${description}" />`)
-      .replace(/<meta name="twitter:image" content=".*?" \/>/g, `<meta name="twitter:image" content="${item.image}" />`)
-      .replace(/<link rel="canonical" href=".*?" \/>/g, `<link rel="canonical" href="${url}" />`);
-    
-    return res.send(modifiedHtml);
-  }
-  res.send(indexHtml);
+  res.send(getModifiedHtml(item));
 });
 
 // SPA Fallback
-app.use((req, res) => {
-  res.sendFile(join(__dirname, 'dist', 'index.html'));
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.includes('.')) return next();
+  res.send(getModifiedHtml());
 });
 
 const PORT = process.env.PORT || 3000;
