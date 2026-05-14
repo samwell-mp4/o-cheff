@@ -70,7 +70,7 @@ app.get('/api/check-payment/:id', async (req, res) => {
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // SPA handle - all other routes to index.html
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
