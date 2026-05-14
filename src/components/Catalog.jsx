@@ -41,25 +41,35 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
 
   return (
     <section id="catalog" className="container py-32">
-      {/* Header & Category Selection - REDESIGNED FOR BALANCE */}
-      <div className="mb-20 border-b border-white/5 pb-12">
-        <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-12">
-          {/* Column 1: Title */}
-          <div className="flex-1 text-center lg:text-left min-w-fit">
-            <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-4 italic leading-tight uppercase">
-              DATABASE DE <br className="hidden md:block lg:hidden" />
-              <span className="neon-cyan">ITENS</span>
-            </h2>
-            <div className="flex items-center justify-center lg:justify-start gap-4">
-              <div className="h-1 w-12 bg-neon-cyan" />
-              <p className="font-bebas text-xl md:text-2xl text-[#888888] tracking-[0.2em] uppercase">
-                FILTRANDO <span className="text-white">{filteredItems.length}</span> ARQUIVOS
-              </p>
+      {/* Header - STACKED FOR MAXIMUM COMPATIBILITY AND FORMAL LOOK */}
+      <div className="mb-20 border-b border-white/5 pb-16">
+        <div className="flex flex-col gap-10">
+          {/* Title Row */}
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
+            <div className="text-center md:text-left">
+              <h2 className="text-6xl md:text-8xl font-black tracking-tighter italic uppercase leading-none mb-4">
+                <span className="neon-cyan">ITENS</span>
+              </h2>
+              <div className="flex items-center justify-center md:justify-start gap-4">
+                <div className="h-1 w-12 bg-neon-cyan shadow-[0_0_10px_#00FFFF]" />
+                <p className="font-bebas text-xl md:text-2xl text-[#888888] tracking-[0.2em] uppercase">
+                  DATABASE <span className="text-white">ATIVA</span> | {filteredItems.length} REGISTROS
+                </p>
+              </div>
+            </div>
+            
+            {/* Search metadata info */}
+            <div className="hidden md:block text-right">
+              <div className="text-[#444] font-bebas text-sm tracking-[0.3em] uppercase mb-1">Status do Sistema</div>
+              <div className="text-neon-green font-bebas text-lg tracking-widest flex items-center justify-end gap-2">
+                <span className="w-2 h-2 bg-neon-green rounded-full animate-pulse" />
+                SINCRONIZADO
+              </div>
             </div>
           </div>
 
-          {/* Column 2: Filters (Swipeable) */}
-          <div className="w-full lg:max-w-[65%] min-w-0">
+          {/* Filters Row - Full Width Slider */}
+          <div className="w-full">
             <Swiper
               slidesPerView={'auto'}
               spaceBetween={12}
@@ -71,7 +81,7 @@ const Catalog = ({ searchQuery, onAddToCart }) => {
                 <SwiperSlide key={cat.id} className="!w-auto">
                   <button
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bebas text-xl tracking-widest transition-all border whitespace-nowrap min-w-[130px] justify-center ${
+                    className={`flex items-center gap-3 px-8 py-4 rounded-xl font-bebas text-2xl tracking-widest transition-all border whitespace-nowrap min-w-[150px] justify-center ${
                       activeCategory === cat.id
                         ? 'bg-neon-cyan text-black border-neon-cyan shadow-[0_0_20px_rgba(0,255,255,0.4)]'
                         : 'bg-white/5 text-[#888888] border-white/10 hover:border-white/30 hover:text-white'
