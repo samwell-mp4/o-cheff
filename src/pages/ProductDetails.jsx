@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import mm2Items from '../data/mm2Items';
 import ItemCard from '../components/ItemCard';
 import SEO from '../components/SEO';
+import FAQ from '../components/FAQ';
 import { ChevronLeft, ShoppingCart, ShieldCheck, Zap, ImageOff, Trophy, Star, Plus, Minus, MessageSquare, User, Home as HomeIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -166,21 +167,7 @@ const ProductDetails = ({ onAddToCart }) => {
         </div>
 
         {/* FAQ Section */}
-        <section className="mb-32">
-          <h2 className="text-4xl font-black mb-12 tracking-tighter border-l-4 border-[#00FFFF] pl-6">
-            DÚVIDAS <span className="neon-cyan">FREQUENTES</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="glass-card p-8 rounded-3xl">
-              <h3 className="text-xl font-bold mb-4 font-gamer text-white">O produto possui garantia?</h3>
-              <p className="text-[#888888] leading-relaxed">Sim! Todos os nossos itens têm garantia vitalícia de procedência e entrega garantida pelo Chefão.</p>
-            </div>
-            <div className="glass-card p-8 rounded-3xl">
-              <h3 className="text-xl font-bold mb-4 font-gamer text-white">Como recebo meu item?</h3>
-              <p className="text-[#888888] leading-relaxed">Após a compra, realizamos o trade oficial dentro do servidor do Roblox. É rápido e seguro.</p>
-            </div>
-          </div>
-        </section>
+        <FAQ variant="discreet" />
 
         {/* Recommendations Section */}
         {recommendations.length > 0 && (

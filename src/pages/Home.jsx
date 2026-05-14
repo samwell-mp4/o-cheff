@@ -22,8 +22,8 @@ const Home = ({ searchQuery, onAddToCart }) => {
         searchQuery={searchQuery} 
         onAddToCart={onAddToCart} 
       />
-      <FAQ />
       <ShowcaseCarousel />
+      <FAQ />
     </main>
   );
 };
