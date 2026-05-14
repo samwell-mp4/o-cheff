@@ -10,6 +10,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import ChatWindow from './components/ChatWindow';
 import Login from './pages/Login';
 import Orders from './pages/Orders';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Refund from './pages/Refund';
+import Footer from './components/Footer';
 
 function App() {
   const navigate = useNavigate();
@@ -149,24 +153,12 @@ function App() {
         <Route path="/admin" element={session ? <AdminDashboard orders={orders} /> : <Navigate to="/login" />} />
         <Route path="/orders" element={session ? <Orders /> : <Navigate to="/login" />} />
         <Route path="/chat" element={<ChatWindow />} />
+        <Route path="/termos" element={<Terms />} />
+        <Route path="/privacidade" element={<Privacy />} />
+        <Route path="/reembolso" element={<Refund />} />
       </Routes>
 
-      <footer className="py-20 border-t border-white/5 text-center mt-20">
-        <div className="container">
-          <div className="text-3xl font-black font-gamer tracking-tighter mb-4">O <span className="neon-cyan">CHEFÃO</span> DOS CARDS</div>
-          <p className="text-[#888888] max-w-md mx-auto mb-8 font-light">
-            Plataforma de elite para itens de Murder Mystery 2. Tecnologia, segurança e velocidade.
-          </p>
-          <div className="flex justify-center gap-8 text-[#888888] font-bebas text-xl tracking-widest">
-            <a href="#" className="hover:text-neon-cyan transition-colors">WhatsApp</a>
-            <a href="#" className="hover:text-neon-cyan transition-colors">Discord</a>
-            <a href="#" className="hover:text-neon-cyan transition-colors">Instagram</a>
-          </div>
-          <div className="mt-12 text-xs text-gray-700 uppercase tracking-[4px]">
-            © 2026 O Chefão dos Cards. PROTOCOLO v2.0
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

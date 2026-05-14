@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Hero from '../components/Hero';
 import Catalog from '../components/Catalog';
 import PromotionsCarousel from '../components/PromotionsCarousel';
+import ShowcaseCarousel from '../components/ShowcaseCarousel';
 
 const Home = ({ searchQuery, onAddToCart }) => {
   useEffect(() => {
@@ -20,6 +21,7 @@ const Home = ({ searchQuery, onAddToCart }) => {
         searchQuery={searchQuery} 
         onAddToCart={onAddToCart} 
       />
+      <ShowcaseCarousel />
     </main>
   );
 };
