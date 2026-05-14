@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 const SEO = ({ item, type = 'product' }) => {
   if (!item) return null;
 
-  const baseUrl = "https://ochefaodoscards.com.br";
+  const baseUrl = "https://chefaodoscards.com.br";
   const url = `${baseUrl}/produto/${item.slug}`;
   const title = `${item.name} | Comprar ${item.name} Original com Garantia`;
   const description = `Compre ${item.name} original da categoria ${item.category} com entrega rápida, garantia e segurança absoluta. Confira o estoque disponível no Chefão dos Cards!`;
