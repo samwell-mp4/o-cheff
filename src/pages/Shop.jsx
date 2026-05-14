@@ -38,7 +38,6 @@ const Shop = ({ searchQuery: navSearch, onAddToCart }) => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -65,7 +64,7 @@ const Shop = ({ searchQuery: navSearch, onAddToCart }) => {
   const rarities = ['Todas', 'Common', 'Uncommon', 'Rare', 'Legendary', 'Godly', 'Ancient', 'Unique'];
 
   const filteredItems = useMemo(() => {
-    return products.filter(item => {
+    let result = (products || []).filter(item => {
       const name = item?.name || '';
       const query = (localSearch || navSearch || '').toLowerCase();
       const matchesSearch = name.toLowerCase().includes(query);
@@ -75,7 +74,9 @@ const Shop = ({ searchQuery: navSearch, onAddToCart }) => {
       const matchesPrice = (item.price || 0) >= priceRange[0] && (item.price || 0) <= priceRange[1];
 
       return matchesSearch && matchesCategory && matchesRarity && matchesStock && matchesPrice;
-    }).sort((a, b) => {
+    });
+
+    return result.sort((a, b) => {
       if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
       if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
       if (sortBy === 'az') return (a.name || '').localeCompare(b.name || '');

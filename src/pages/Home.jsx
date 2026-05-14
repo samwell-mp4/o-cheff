@@ -19,9 +19,7 @@ const Home = ({ onAddToCart }) => {
   return (
     <main>
       <Hero />
-      <BannerCarousel />
       <CategoryChoice />
-      <PromotionsCarousel onAddToCart={onAddToCart} />
       <ShowcaseCarousel />
       <SailorShowcase />
       <FAQ />

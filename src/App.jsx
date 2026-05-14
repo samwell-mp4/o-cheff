@@ -17,6 +17,15 @@ import Footer from './components/Footer';
 import EventTracker from './components/EventTracker';
 import { useTracker } from './hooks/useTracker';
 import { supabase } from './lib/supabaseClient';
+import ScrollToTop from './components/ScrollToTop';
+
+// Componente para forçar o logout via URL
+const LogoutHandler = ({ onLogout }) => {
+  useEffect(() => {
+    onLogout();
+  }, [onLogout]);
+  return <div className="min-h-screen bg-[#050510] flex items-center justify-center text-red-500 font-bebas text-2xl tracking-widest uppercase italic animate-pulse">Deslogando...</div>;
+};
 
 export default function App() {
   const location = useLocation();
@@ -34,11 +43,20 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
+    console.log("Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
+    console.log("Supabase Key iniciada:", import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 10) + "...");
+  }, []);
+
+  useEffect(() => {
     const startApp = async () => {
       const { data: { session: s } } = await supabase.auth.getSession();
       setSession(s);
       if (s) {
-        const { data } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
+        const { data, error } = await supabase.from('profiles').select('role').eq('id', s.user.id).single();
+        if (error) {
+          console.error("Erro cargo:", error);
+          alert("Erro ao ler seu cargo: " + error.message);
+        }
         if (data) setStatusAcesso(data.role);
       }
       setLoading(false);
@@ -101,6 +119,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050510]">
+      <ScrollToTop />
       <EventTracker />
       {!isAdmin && (
         <Navbar 
@@ -142,6 +161,7 @@ export default function App() {
         <Route path="/chat" element={<ChatWindow />} />
         <Route path="/termos" element={<Terms />} />
         <Route path="/privacidade" element={<Privacy />} />
+        <Route path="/logout" element={<LogoutHandler onLogout={handleLogout} />} />
       </Routes>
 
       {!isAdmin && <Footer />}

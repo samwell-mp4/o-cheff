@@ -48,7 +48,6 @@ const BannerCarousel = () => {
       const { data, error } = await supabase
         .from('banners')
         .select('*')
-        .eq('is_active', true)
         .order('order_index', { ascending: true });
 
       if (!error && data && data.length > 0) {
