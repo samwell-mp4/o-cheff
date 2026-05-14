@@ -15,10 +15,10 @@ const Hero = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mb-6"
+          className="mb-6 px-4"
         >
-          <span className="bg-[#00FFFF]/10 border border-[#00FFFF]/30 px-4 py-2 rounded-full text-[#00FFFF] font-bebas tracking-widest text-lg shadow-[0_0_15px_rgba(0,255,255,0.2)]">
-            A MAIOR REVENDEDORA DE ELITE DO BRASIL
+          <span className="bg-[#00FFFF]/10 border border-[#00FFFF]/30 px-6 py-3 rounded-full text-[#00FFFF] font-bebas tracking-widest text-lg sm:text-xl shadow-[0_0_15px_rgba(0,255,255,0.2)] inline-block">
+            LOJA DE ITENS MM2 - GODLYS, CHROMAS E SETS
           </span>
         </motion.div>
 
