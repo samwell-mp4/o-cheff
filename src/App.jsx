@@ -130,6 +130,8 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
+      {session && <ChatWindow />}
+
       {!isAdminPage && <Footer />}
     </div>
   );

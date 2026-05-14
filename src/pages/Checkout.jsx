@@ -212,6 +212,12 @@ const Checkout = ({ cart, onClearCart }) => {
 
       if (onClearCart) onClearCart();
       setStep(4);
+
+      // Abre o chat automaticamente após a venda
+      setTimeout(() => {
+        const chatBtn = document.getElementById('chat-trigger');
+        if (chatBtn) chatBtn.click();
+      }, 1000);
     } catch (err) {
       console.error("Erro crítico no Checkout:", err);
       setStep(4);
