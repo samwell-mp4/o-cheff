@@ -85,31 +85,44 @@ const FAQ = ({ variant = 'full' }) => {
   const isDiscreet = variant === 'discreet';
 
   return (
-    <section className={`${isDiscreet ? 'py-12 border-t border-white/5' : 'py-24'} relative overflow-hidden`} id="faq">
+    <section className={`${isDiscreet ? 'py-16' : 'py-32'} relative overflow-hidden`} id="faq">
+      {/* Background Cinematic Effects */}
       {!isDiscreet && (
         <>
-          <div className="cinematic-rays opacity-20" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[#00FFFF]/5 blur-[120px] rounded-full pointer-events-none" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#00FFFF]/5 blur-[150px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#BF00FF]/5 blur-[150px] rounded-full pointer-events-none" />
+          <div className="cinematic-rays opacity-10" />
         </>
       )}
 
       <div className="container relative z-10 px-4">
-        <div className={`text-center ${isDiscreet ? 'mb-8' : 'mb-16'}`}>
+        <div className={`text-center ${isDiscreet ? 'mb-12' : 'mb-20'}`}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            className="inline-block mb-4"
+          >
+            <span className="bg-[#00FFFF]/10 border border-[#00FFFF]/20 px-4 py-1 rounded-full text-[#00FFFF] text-[10px] font-black tracking-[0.3em] uppercase">
+              Centro de Ajuda
+            </span>
+          </motion.div>
+          
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className={`${isDiscreet ? 'text-2xl sm:text-4xl' : 'text-4xl sm:text-6xl'} font-black mb-6 tracking-tighter uppercase`}
+            className={`${isDiscreet ? 'text-3xl sm:text-5xl' : 'text-4xl sm:text-7xl'} font-black mb-6 tracking-tighter uppercase italic`}
           >
             {isDiscreet ? 'Dúvidas' : 'Perguntas'} <span className="neon-cyan">{isDiscreet ? 'Comuns' : 'Frequentes'}</span>
           </motion.h2>
+          
           {!isDiscreet && (
-            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light">
-              Tire suas dúvidas sobre o funcionamento da nossa loja, entregas e segurança.
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
+              Tudo o que você precisa saber sobre o <span className="text-white font-bold italic">O Chefão</span> e como garantimos a melhor experiência de compra do Brasil.
             </p>
           )}
         </div>
 
-        <div className={`${isDiscreet ? 'max-w-3xl' : 'max-w-4xl'} mx-auto`}>
+        <div className={`${isDiscreet ? 'max-w-3xl' : 'max-w-4xl'} mx-auto space-y-3`}>
           {faqs.map((faq, index) => (
             <FAQItem
               key={index}
@@ -120,27 +133,33 @@ const FAQ = ({ variant = 'full' }) => {
           ))}
         </div>
 
-        {/* Support CTA - Only in full version */}
+        {/* Support CTA - Enhanced */}
         {!isDiscreet && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            className="mt-16 text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="mt-24 text-center"
           >
-            <div className="inline-flex flex-wrap justify-center items-center gap-8 glass-card p-6 rounded-3xl border-white/5">
-              <div className="flex items-center gap-3">
-                <MessageCircle className="w-6 h-6 text-[#00FFFF]" />
-                <div className="text-left">
-                  <div className="text-xs text-gray-500 uppercase font-bold tracking-widest">Ainda com dúvidas?</div>
-                  <div className="text-white font-bebas text-lg">CHAT AO VIVO 24/7</div>
+            <div className="inline-flex flex-col sm:flex-row items-center gap-6 sm:gap-12 glass-card p-8 sm:p-10 rounded-[2rem] border-white/5 shadow-2xl">
+              <div className="flex items-center gap-4 text-left">
+                <div className="w-12 h-12 bg-[#00FFFF]/10 rounded-2xl flex items-center justify-center border border-[#00FFFF]/20">
+                  <MessageCircle className="w-6 h-6 text-[#00FFFF]" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">Ainda com dúvidas?</div>
+                  <div className="text-white font-bebas text-2xl tracking-widest">CHAT AO VIVO 24/7</div>
                 </div>
               </div>
-              <div className="w-px h-10 bg-white/10 hidden sm:block" />
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-6 h-6 text-[#BF00FF]" />
-                <div className="text-left">
-                  <div className="text-xs text-gray-500 uppercase font-bold tracking-widest">Segurança Total</div>
-                  <div className="text-white font-bebas text-lg">COMPRA GARANTIDA</div>
+              
+              <div className="w-full sm:w-px h-px sm:h-12 bg-white/10" />
+              
+              <div className="flex items-center gap-4 text-left">
+                <div className="w-12 h-12 bg-[#BF00FF]/10 rounded-2xl flex items-center justify-center border border-[#BF00FF]/20">
+                  <ShieldCheck className="w-6 h-6 text-[#BF00FF]" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">Total Segurança</div>
+                  <div className="text-white font-bebas text-2xl tracking-widest">COMPRA GARANTIDA</div>
                 </div>
               </div>
             </div>
